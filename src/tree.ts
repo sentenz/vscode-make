@@ -131,5 +131,5 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
 }
 
 function escapeMarkdown(value: string): string {
-  return value.replace(/[\\`*_{}\[\]()#+\-.!|>]/g, '\\$&');
+  return value.replace(/[\\`*_{}[\]()#+\-.!|>]/g, '\\$&');
 }
