@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   release:
+    if: github.head_ref == 'agent/vscode-extension-release-run'
     name: Build, package, and publish
     runs-on: ubuntu-latest
     timeout-minutes: 20
