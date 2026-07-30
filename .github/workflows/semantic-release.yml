@@ -68,16 +68,3 @@ jobs:
             sbom.spdx.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  trigger:
-    name: Trigger Workflows
-    needs:
-      - semantic-release
-    if: always() && needs.semantic-release.outputs.new-release-published == 'true'
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/docker.yml
-    with:
-      publish: true
-      version: ${{ needs.semantic-release.outputs.new-release-version }}
