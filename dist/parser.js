@@ -1,0 +1,109 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.parseMakefile = parseMakefile;
+exports.splitArguments = splitArguments;
+const TARGET_NAME = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
+const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)[ \t]*::?(?![=])(.*)$/;
+/**
+ * Parses concrete Makefile rules documented by either:
+ *
+ *   ## Build the application
+ *   build:
+ *
+ * or:
+ *
+ *   build: ## Build the application
+ *
+ * Pattern rules, variable assignments, recipes, and undocumented helper rules
+ * are deliberately excluded.
+ */
+function parseMakefile(content) {
+    const lines = content.replace(/\r\n?/g, '\n').split('\n');
+    const targets = [];
+    const seen = new Set();
+    let pendingDescription = [];
+    for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
+        const line = lines[lineNumber] ?? '';
+        // A tab starts a recipe in conventional Make syntax; never interpret recipe
+        // content as metadata or as another target.
+        if (line.startsWith('\t')) {
+            pendingDescription = [];
+            continue;
+        }
+        const documentedComment = line.match(/^[ ]*##[ ]?(.*)$/);
+        if (documentedComment) {
+            const text = documentedComment[1]?.trim() ?? '';
+            if (text.length > 0) {
+                pendingDescription.push(text);
+            }
+            continue;
+        }
+        const rule = line.match(RULE);
+        if (rule) {
+            const names = (rule[1] ?? '').trim().split(/[ \t]+/);
+            const remainder = rule[2] ?? '';
+            const inlineDescription = remainder.match(/(?:^|[ \t])##[ \t]*(.+?)[ \t]*$/)?.[1]?.trim();
+            const description = inlineDescription || pendingDescription.join(' ').trim();
+            if (description.length > 0) {
+                for (const name of names) {
+                    if (!TARGET_NAME.test(name) || seen.has(name)) {
+                        continue;
+                    }
+                    seen.add(name);
+                    targets.push({ name, description, line: lineNumber });
+                }
+            }
+            pendingDescription = [];
+            continue;
+        }
+        // Documentation applies only to the immediately following rule. Any other
+        // Makefile construct invalidates the pending annotation.
+        pendingDescription = [];
+    }
+    return targets;
+}
+/** Split a command-line fragment without invoking a shell. */
+function splitArguments(input) {
+    const result = [];
+    let token = '';
+    let quote;
+    let escaping = false;
+    const push = () => {
+        if (token.length > 0) {
+            result.push(token);
+            token = '';
+        }
+    };
+    for (const character of input) {
+        if (escaping) {
+            token += character;
+            escaping = false;
+            continue;
+        }
+        if (character === '\\' && quote !== 'single') {
+            escaping = true;
+            continue;
+        }
+        if (character === "'" && quote !== 'double') {
+            quote = quote === 'single' ? undefined : 'single';
+            continue;
+        }
+        if (character === '"' && quote !== 'single') {
+            quote = quote === 'double' ? undefined : 'double';
+            continue;
+        }
+        if (/\s/.test(character) && quote === undefined) {
+            push();
+            continue;
+        }
+        token += character;
+    }
+    if (escaping) {
+        token += '\\';
+    }
+    if (quote !== undefined) {
+        throw new Error('Unterminated quoted argument.');
+    }
+    push();
+    return result;
+}

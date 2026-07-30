@@ -1,0 +1,236 @@
+{
+  "name": "makefile-task-explorer",
+  "displayName": "Makefile Tasks",
+  "description": "Discover documented Makefile targets and run them from an Activity Bar task explorer.",
+  "version": "0.1.1",
+  "publisher": "sentenz",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "homepage": "https://github.com/sentenz/vscode-make#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sentenz/vscode-make.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sentenz/vscode-make/issues"
+  },
+  "engines": {
+    "vscode": "^1.100.0",
+    "node": ">=20"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "makefile",
+    "make",
+    "tasks",
+    "task runner",
+    "activity bar"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "files": [
+    "dist/**",
+    "media/**",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "makefileTasks.refresh",
+        "title": "Refresh Targets",
+        "category": "Makefile Tasks",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "makefileTasks.runTarget",
+        "title": "Run Target",
+        "category": "Makefile Tasks",
+        "icon": "$(play)"
+      },
+      {
+        "command": "makefileTasks.runTargetWithArgs",
+        "title": "Run Target with Arguments",
+        "category": "Makefile Tasks",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "makefileTasks.runTargetPicker",
+        "title": "Run Target…",
+        "category": "Makefile Tasks",
+        "icon": "$(list-selection)"
+      },
+      {
+        "command": "makefileTasks.openTarget",
+        "title": "Go to Target Definition",
+        "category": "Makefile Tasks",
+        "icon": "$(go-to-file)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "makefileTasks",
+          "title": "Makefile Tasks",
+          "icon": "media/makefile.svg"
+        }
+      ]
+    },
+    "views": {
+      "makefileTasks": [
+        {
+          "id": "makefileTasks.targets",
+          "name": "Targets",
+          "icon": "media/makefile.svg",
+          "contextualTitle": "Makefile Tasks"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "makefileTasks.targets",
+        "contents": "No documented Makefile targets were found. Add a `##` description immediately before a target, or use `target: ## description`.\n[Refresh](command:makefileTasks.refresh)",
+        "when": "!makefileTasks.hasTargets"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "makefileTasks.runTargetPicker",
+          "when": "view == makefileTasks.targets && makefileTasks.hasTargets",
+          "group": "navigation@1"
+        },
+        {
+          "command": "makefileTasks.refresh",
+          "when": "view == makefileTasks.targets",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "makefileTasks.runTarget",
+          "when": "view == makefileTasks.targets && viewItem == makefileTarget",
+          "group": "inline@1"
+        },
+        {
+          "command": "makefileTasks.runTargetWithArgs",
+          "when": "view == makefileTasks.targets && viewItem == makefileTarget",
+          "group": "inline@2"
+        },
+        {
+          "command": "makefileTasks.openTarget",
+          "when": "view == makefileTasks.targets && viewItem == makefileTarget",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Makefile Tasks",
+      "properties": {
+        "makefileTasks.makeCommand": {
+          "type": "string",
+          "default": "make",
+          "description": "Make executable or command available to the extension host."
+        },
+        "makefileTasks.fileGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/Makefile",
+            "**/makefile",
+            "**/GNUmakefile"
+          ],
+          "description": "Workspace-relative glob patterns used to discover Makefiles."
+        },
+        "makefileTasks.excludeGlob": {
+          "type": "string",
+          "default": "**/{.git,node_modules,vendor,.venv,dist,out}/**",
+          "description": "Glob pattern excluded from Makefile discovery."
+        },
+        "makefileTasks.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Refresh documented targets after matching Makefiles change."
+        },
+        "makefileTasks.runOnClick": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run a target when its tree item is selected. Disable to use only the inline play action."
+        },
+        "makefileTasks.sort": {
+          "type": "string",
+          "enum": [
+            "source",
+            "name"
+          ],
+          "enumDescriptions": [
+            "Preserve target order from each Makefile.",
+            "Sort targets alphabetically."
+          ],
+          "default": "source",
+          "description": "Target ordering in the explorer and task picker."
+        }
+      }
+    },
+    "taskDefinitions": [
+      {
+        "type": "makefileTarget",
+        "required": [
+          "target"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "Make target to execute."
+          },
+          "makefile": {
+            "type": "string",
+            "description": "Workspace-relative Makefile path. Defaults to Makefile."
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional arguments or variable assignments passed to make."
+          }
+        },
+        "when": "shellExecutionSupported"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run check && npm run build",
+    "check": "npm run lint && npm run typecheck && npm run test:unit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run",
+    "compile:integration": "tsc -p tsconfig.integration.json",
+    "test:integration": "npm run build && npm run compile:integration && node .integration-test/test/integration/runTest.js",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.0",
+    "@types/vscode": "1.100.0",
+    "@vscode/vsce": "3.4.2",
+    "typescript": "5.8.3",
+    "vitest": "3.2.4",
+    "@eslint/js": "9.13.0",
+    "@types/mocha": "10.0.10",
+    "@vscode/test-electron": "2.5.2",
+    "eslint": "9.13.0",
+    "mocha": "11.7.1",
+    "typescript-eslint": "8.26.0"
+  },
+  "extensionKind": [
+    "workspace"
+  ]
+}
