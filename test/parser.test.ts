@@ -65,7 +65,7 @@ build:
 
 describe('splitArguments', () => {
   it('supports quoted and escaped values', () => {
-    expect(splitArguments(`ENV=dev MESSAGE="hello world" path\ with\ spaces 'single value'`)).toEqual([
+    expect(splitArguments(`ENV=dev MESSAGE="hello world" path\\ with\\ spaces 'single value'`)).toEqual([
       'ENV=dev',
       'MESSAGE=hello world',
       'path with spaces',
