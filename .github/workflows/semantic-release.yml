@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Semantic Release
         id: release
-        uses: sentenz/actions/semantic-release@60efccb4fffbfbbe6db57c11f68d73462aa0957c # 1.2.2
+        uses: sentenz/actions/semantic-release@c1455a61876aefd9852bf4a5c60273bd8b821070 # 1.2.3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           semantic-version: "25.0.3"
@@ -42,7 +42,7 @@ jobs:
 
       - name: Run SBOM Generation (CycloneDX)
         if: steps.release.outputs.new-release-published == 'true'
-        uses: sentenz/actions/trivy@60efccb4fffbfbbe6db57c11f68d73462aa0957c # 1.2.2
+        uses: sentenz/actions/trivy@c1455a61876aefd9852bf4a5c60273bd8b821070 # 1.2.3
         with:
           scan-type: sbom-generate
           scan-target: "."
@@ -51,7 +51,7 @@ jobs:
 
       - name: Run SBOM Generation (SPDX)
         if: steps.release.outputs.new-release-published == 'true'
-        uses: sentenz/actions/trivy@60efccb4fffbfbbe6db57c11f68d73462aa0957c # 1.2.2
+        uses: sentenz/actions/trivy@c1455a61876aefd9852bf4a5c60273bd8b821070 # 1.2.3
         with:
           scan-type: sbom-generate
           scan-target: "."
