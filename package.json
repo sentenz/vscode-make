@@ -210,7 +210,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:unit",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run --exclude \"test/integration/**\"",
     "compile:integration": "tsc -p tsconfig.integration.json",
     "test:integration": "npm run build && npm run compile:integration && node .integration-test/test/integration/runTest.js",
     "build": "tsc -p tsconfig.build.json",
