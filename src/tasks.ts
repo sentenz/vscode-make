@@ -45,7 +45,10 @@ export function createMakeTask(target: MakefileTarget, extraArgs: readonly strin
     [],
   );
   task.detail = target.description;
-  task.group = taskGroupForCategory(target.category);
+  const group = taskGroupForCategory(target.category);
+  if (group) {
+    task.group = group;
+  }
   task.presentationOptions = {
     reveal: vscode.TaskRevealKind.Always,
     panel: vscode.TaskPanelKind.Shared,
