@@ -8,7 +8,7 @@ import { MakefileTreeProvider, targetFromArgument, type TargetNode } from './tre
 export function activate(context: vscode.ExtensionContext): void {
   const output = vscode.window.createOutputChannel('Makefile Tasks', { log: true });
   const discovery = new MakefileDiscovery(output);
-  const treeProvider = new MakefileTreeProvider();
+  const treeProvider = new MakefileTreeProvider(context.extensionUri);
   const treeView = vscode.window.createTreeView('makefileTasks.targets', {
     treeDataProvider: treeProvider,
     showCollapseAll: true,
