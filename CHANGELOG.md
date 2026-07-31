@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0](https://github.com/sentenz/vscode-make/compare/1.2.3...1.3.0) (2026-07-31)
+
+### Features
+
+* add SVG icons for makefile representation ([f42bc3d](https://github.com/sentenz/vscode-make/commit/f42bc3d0414561e9263640073c4c39268e0e54a8))
+
 ## [1.2.3](https://github.com/sentenz/vscode-make/compare/1.2.2...1.2.3) (2026-07-31)
 
 ### Bug Fixes
