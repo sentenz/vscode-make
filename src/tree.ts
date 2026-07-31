@@ -73,14 +73,14 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
 
   public getTreeItem(element: TreeNode): vscode.TreeItem {
     if (element.kind === 'workspace') {
-      const item = new vscode.TreeItem(element.folder.name, vscode.TreeItemCollapsibleState.Expanded);
+      const item = new vscode.TreeItem(element.folder.name, vscode.TreeItemCollapsibleState.Collapsed);
       item.iconPath = new vscode.ThemeIcon('root-folder');
       item.contextValue = 'makefileWorkspace';
       return item;
     }
 
     if (element.kind === 'makefile') {
-      const item = new vscode.TreeItem(element.document.relativePath, vscode.TreeItemCollapsibleState.Expanded);
+      const item = new vscode.TreeItem(element.document.relativePath, vscode.TreeItemCollapsibleState.Collapsed);
       item.resourceUri = element.document.uri;
       item.iconPath = new vscode.ThemeIcon('symbol-file');
       item.contextValue = 'makefileDocument';
@@ -89,7 +89,7 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
 
     if (element.kind === 'category') {
       const label = element.category ?? 'Uncategorized';
-      const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Expanded);
+      const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Collapsed);
       item.iconPath = this.categoryIconPath ?? new vscode.ThemeIcon('symbol-namespace');
       item.contextValue = 'makefileCategory';
       item.description = `${element.targets.length}`;
