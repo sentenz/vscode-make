@@ -85,6 +85,24 @@ valid: ## Categorized
     ]);
   });
 
+  it('accepts punctuation and symbol separators but rejects format characters', () => {
+    const result = parseMakefile(`# \u200D\u200D\u200D Invisible \u200D\u200D\u200D
+format: ## Not categorized
+
+# ___ Build ___
+build: ## Build application
+
+# ### Test ###
+test: ## Run tests
+`);
+
+    expect(result).toEqual([
+      { name: 'format', description: 'Not categorized', line: 1 },
+      { name: 'build', description: 'Build application', category: 'Build', line: 4 },
+      { name: 'test', description: 'Run tests', category: 'Test', line: 7 },
+    ]);
+  });
+
   it('ignores pattern rules, assignments, recipes, and duplicate definitions', () => {
     const result = parseMakefile(`## Ignore pattern
 build-%:
