@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/sentenz/vscode-make/compare/1.2.2...1.2.3) (2026-07-31)
+
+### Bug Fixes
+
+* restore categories in target hover ([3176acd](https://github.com/sentenz/vscode-make/commit/3176acd09b6d93c1fd488d3e97153b0c5c7430e8))
+* show categories in task details ([1756e48](https://github.com/sentenz/vscode-make/commit/1756e4839f5b1ef4a225cc9c577a331c2cf103b2))
+
 ## [1.2.2](https://github.com/sentenz/vscode-make/compare/1.2.1...1.2.2) (2026-07-31)
 
 ### Bug Fixes
