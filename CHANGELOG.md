@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/sentenz/vscode-make/compare/1.1.0...1.2.0) (2026-07-31)
+
+### Features
+
+* add target usage metadata ([97b33c2](https://github.com/sentenz/vscode-make/commit/97b33c2ab9015e3c8a9d8872b616ba53101732b2))
+* parse Makefile usage metadata ([04e2482](https://github.com/sentenz/vscode-make/commit/04e24822b0671e4cce377276a6a7c1304f4e2a43))
+* show target usage in explorer tooltips ([d8bf1d7](https://github.com/sentenz/vscode-make/commit/d8bf1d7d2528386361f123ae34d2d4877edada03))
+* show usage in discovered task details ([873427a](https://github.com/sentenz/vscode-make/commit/873427a17a6a063bc00d583b46887ecfcd431231))
+* surface target usage when running with arguments ([e29db8e](https://github.com/sentenz/vscode-make/commit/e29db8e278f40999f1e329a1f0b94697029552f9))
+
+### Bug Fixes
+
+* render usage tooltip without markdown escapes ([e3a06dc](https://github.com/sentenz/vscode-make/commit/e3a06dcd26ee79e7e4cb1f6a86c6eaf48cce85d0))
+* safely render usage code spans ([c6b03af](https://github.com/sentenz/vscode-make/commit/c6b03af79a9905e250c4647dae2987bd71a07b4b))
+
 ## [1.1.0](https://github.com/sentenz/vscode-make/compare/1.0.3...1.1.0) (2026-07-31)
 
 ### Features
