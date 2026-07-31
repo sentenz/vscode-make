@@ -85,8 +85,9 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
     item.iconPath = new vscode.ThemeIcon('play');
     item.contextValue = 'makefileTarget';
     const usage = target.usage ? `  \nUsage: ${codeSpan(`make ${target.name} ${target.usage}`)}` : '';
+    const category = target.category ? `  \nCategory: ${escapeMarkdown(target.category)}` : '';
     item.tooltip = new vscode.MarkdownString(
-      `${escapeMarkdown(target.description)}${usage}  \n\`${escapeMarkdown(target.makefileRelativePath)}:${target.line + 1}\``,
+      `${escapeMarkdown(target.description)}${usage}${category}  \n\`${escapeMarkdown(target.makefileRelativePath)}:${target.line + 1}\``,
     );
     if (vscode.workspace.getConfiguration('makefileTasks').get<boolean>('runOnClick', true)) {
       item.command = {
