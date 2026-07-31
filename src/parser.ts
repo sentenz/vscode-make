@@ -13,6 +13,11 @@ const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)
  *
  *   build: ## Build the application
  *
+ * Categories can be declared with a persistent section marker:
+ *
+ *   ##@ Build
+ *   build: ## Build the application
+ *
  * Pattern rules, variable assignments, recipes, and undocumented helper rules
  * are deliberately excluded.
  */
@@ -21,6 +26,7 @@ export function parseMakefile(content: string): ParsedTarget[] {
   const targets: ParsedTarget[] = [];
   const seen = new Set<string>();
   let pendingDescription: string[] = [];
+  let currentCategory: string | undefined;
 
   for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
     const line = lines[lineNumber] ?? '';
@@ -28,6 +34,13 @@ export function parseMakefile(content: string): ParsedTarget[] {
     // A tab starts a recipe in conventional Make syntax; never interpret recipe
     // content as metadata or as another target.
     if (line.startsWith('\t')) {
+      pendingDescription = [];
+      continue;
+    }
+
+    const categoryComment = line.match(/^[ ]*##@[ ]?(.*)$/);
+    if (categoryComment) {
+      currentCategory = categoryComment[1]?.trim() || undefined;
       pendingDescription = [];
       continue;
     }
@@ -54,7 +67,12 @@ export function parseMakefile(content: string): ParsedTarget[] {
             continue;
           }
           seen.add(name);
-          targets.push({ name, description, line: lineNumber });
+          targets.push({
+            name,
+            description,
+            ...(currentCategory ? { category: currentCategory } : {}),
+            line: lineNumber,
+          });
         }
       }
 
@@ -63,7 +81,8 @@ export function parseMakefile(content: string): ParsedTarget[] {
     }
 
     // Documentation applies only to the immediately following rule. Any other
-    // Makefile construct invalidates the pending annotation.
+    // Makefile construct invalidates the pending annotation. Categories remain
+    // active as section metadata until another ##@ marker replaces or clears it.
     pendingDescription = [];
   }
 
