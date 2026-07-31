@@ -24,7 +24,7 @@ K8S_STACK_DIR ?= manifests/overlays
 KIND_CLUSTER_NAME ?= template-k8s
 KIND_CONFIG ?= config/kind-cluster.yaml
 
-# ── General ──────────────────────────────────────────────────────────────────────────────────────
+# ─── General ─────────────────────────────────────────────────────────────────────────────────────
 
 default: help
 
@@ -37,7 +37,7 @@ help:
 	@awk '/^##/{c=substr($$0,3);next}c&&/^[[:alpha:]][[:alnum:]_-]+:/{print "$(shell tput -Txterm setaf 6)\t" substr($$1,1,index($$1,":")) "$(shell tput -Txterm sgr0)",c}1{c=0}' $(MAKEFILE_LIST) | column -s: -t
 .PHONY: help
 
-# ── Setup & Teardown ─────────────────────────────────────────────────────────────────────────────
+# ─── Setup & Teardown ────────────────────────────────────────────────────────────────────────────
 
 ## Initialize a software development workspace with requisites
 bootstrap:
@@ -54,7 +54,7 @@ teardown:
 	cd $(@D)/scripts && ./teardown.sh
 .PHONY: teardown
 
-# ── Git Hooks Manager ────────────────────────────────────────────────────────────────────────────
+# ─── Git Hooks Manager ───────────────────────────────────────────────────────────────────────────
 
 ## Initialize Lefthook Git hooks in the local repository
 githooks-lefthook-initialize:
@@ -66,7 +66,7 @@ githooks-lefthook-deinitialize:
 	lefthook uninstall
 .PHONY: githooks-lefthook-deinitialize
 
-# ── Skills Manager ───────────────────────────────────────────────────────────────────────────────
+# ─── Skills Manager ──────────────────────────────────────────────────────────────────────────────
 
 ## Provision new Agent Skills into the project environment
 skills-agent-add:
@@ -78,7 +78,7 @@ skills-agent-update:
 	DISABLE_TELEMETRY=1 skills update git@gitlab.samscm.net:development-environment/templates/skills.git
 .PHONY: skills-agent-update
 
-# ── Dependency Manager ───────────────────────────────────────────────────────────────────────────
+# ─── Dependency Manager ──────────────────────────────────────────────────────────────────────────
 
 DEPENDENCY_RENOVATE_IMAGE ?= docker.io/renovate/renovate:43.288.0@sha256:3b72fc4274c56f65f53dcd4dcbed3143289358e0a2d96f7af215e6cf1923e5f6
 DEPENDENCY_RENOVATE_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace -e LOG_LEVEL=debug -e RENOVATE_REPOSITORIES -e RENOVATE_TOKEN=$(RENOVATE_TOKEN) "$(DEPENDENCY_RENOVATE_IMAGE)"
@@ -90,7 +90,7 @@ dependency-renovate-update:
 	$(DEPENDENCY_RENOVATE_ALIAS) renovate --platform=local --repository-cache=reset > logs/dependency/renovate.log 2>&1
 .PHONY: dependency-renovate-update
 
-# ── Secrets Manager ──────────────────────────────────────────────────────────────────────────────
+# ─── Secrets Manager ─────────────────────────────────────────────────────────────────────────────
 
 SECRETS_SOPS_IMAGE ?= ghcr.io/getsops/sops:v3.13.3@sha256:857f5a151ac0b2bfc55c1e4e5581d66fb8e268e4d106b38e74191f3bac9d58ea
 SECRETS_SOPS_ALIAS ?= docker run --rm -v "${PWD}:/workspace" -v "$${HOME}/.gnupg:/root/.gnupg" -w /workspace "$(SECRETS_SOPS_IMAGE)"
@@ -225,7 +225,7 @@ secrets-sops-view:
 	$(SECRETS_SOPS_ALIAS) decrypt "$(filter-out $@,$(MAKECMDGOALS))"
 .PHONY: secrets-sops-view
 
-# ── Policy Manager ───────────────────────────────────────────────────────────────────────────────
+# ─── Policy Manager ──────────────────────────────────────────────────────────────────────────────
 
 POLICY_CONFTEST_IMAGE ?= docker.io/openpolicyagent/conftest:v0.68.2@sha256:5fd81e332d7e4bc01daf3ef35371800a9a9720a30c0c37a78de0c5fbe4b6d622
 POLICY_CONFTEST_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace "$(POLICY_CONFTEST_IMAGE)"
@@ -261,7 +261,7 @@ policy-regal-lint:
 	$(POLICY_REGAL_ALIAS) lint "$(filter-out $@,$(MAKECMDGOALS))" --format json > logs/policy/regal.json 2>&1
 .PHONY: policy-regal-lint
 
-# ── SAST Manager ─────────────────────────────────────────────────────────────────────────────────
+# ─── SAST Manager ────────────────────────────────────────────────────────────────────────────────
 
 SAST_SEMGREP_IMAGE ?= semgrep/semgrep:1.172.0@sha256:65dcd4408adda7c183a6b4550cb1e9b19f7f627a6fbb7e0559bd466bedc44d7b
 SAST_SEMGREP_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace "$(SAST_SEMGREP_IMAGE)"
@@ -476,7 +476,7 @@ sast-trufflehog-git:
 	docker run --rm -v "${PWD}:/workspace" -w /workspace "$(SAST_IMAGE_TRUFFLEHOG)" git file:///workspace --no-update --json > logs/sast/trufflehog-git.json 2> logs/sast/trufflehog-git.log
 .PHONY: sast-trufflehog-git
 
-# ── Supply Chain Security ────────────────────────────────────────────────────────────────────────
+# ─── Supply Chain Security ───────────────────────────────────────────────────────────────────────
 
 SAST_COSIGN_IMAGE ?= cgr.dev/chainguard/cosign:3.0.0@sha256:b6bc266358e9368be1b3d01fca889b78d5ad5a47832986e14640c34a237ef638
 SAST_COSIGN_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace "$(SAST_COSIGN_IMAGE)"
@@ -524,7 +524,7 @@ sast-cosign-verify:
 	$(SAST_COSIGN_ALIAS) verify-attestation --key cosign.pub --type cyclonedx "$(filter-out $@,$(MAKECMDGOALS))" > logs/sbom/sbom.cdx.intoto.jsonl 2> logs/sast/cosign-verify.log
 .PHONY: sast-cosign-verify
 
-# ── Container Manager ────────────────────────────────────────────────────────────────────────────
+# ─── Container Manager ───────────────────────────────────────────────────────────────────────────
 
 CONTAINER_DOCKER_IMAGE ?= $(notdir $(shell git rev-parse --show-toplevel 2>/dev/null))
 CONTAINER_DOCKER_TAG ?= $(or $(shell git tag --sort=-creatordate | head -n 1),latest)
@@ -555,7 +555,7 @@ container-docker-teardown:
 	@docker volume prune -f -a --filter "label!=keep=true"
 .PHONY: container-docker-teardown
 
-# ── VS Code Extension ─────────────────────────────────────────────────────────
+# ─── VS Code Extension ───────────────────────────────────────────────────────────────────────────
 
 VSCODE_EXTENSION_DIR ?= .
 VSCODE_EXTENSION_OUT ?= out
