@@ -23,22 +23,34 @@ Undocumented helper rules, pattern rules such as `build-%`, variable assignments
 
 ## Categories
 
-Targets can be organized with `##@` section markers:
+Targets can be organized with canonical section comments using this generic schema:
+
+```text
+<comment><space><three-or-more-separator-signs><space><category><optional trailing separators>
+```
+
+For Makefiles, the comment marker is `#`. The separator is any non-alphanumeric sign repeated at least three times. Optional trailing separators use the same sign. For example:
 
 ```make
-##@ Build
-build: ## Build the application
-	go build ./...
+# ─── Skills Manager ───────────────────────────────────────────────────────
+skills-agent-add: ## Provision Agent Skills
+	skills add ./skills
 
-package: ## Package release artifacts
-	./scripts/package.sh
+skills-agent-update: ## Update Agent Skills
+	skills update ./skills
 
-##@ Test
+# --- Dependencies ---------------------------------------------------------
+dependency-update: ## Update project dependencies
+	renovate --platform=local
+
+# === Test ================================================================
 test: ## Run the test suite
 	go test ./...
 ```
 
-A category applies to subsequent documented targets until another `##@` marker is encountered. An empty `##@` marker clears the current category. When at least one target is categorized, the Activity Bar explorer groups targets by category and places targets without a category under **Uncategorized**.
+A category applies to subsequent documented targets until another valid category header is encountered. The visual width of the header is not significant; only the leading run requires three or more repeated separator signs. Headers with fewer than three signs, or without whitespace between `#` and the separator run, are ordinary comments and do not affect categorization.
+
+When at least one target is categorized, the Activity Bar explorer groups targets by category and places targets without a category under **Uncategorized**.
 
 The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's corresponding built-in task groups, so those targets participate in commands such as **Tasks: Run Build Task** and **Tasks: Run Test Task**.
 
@@ -46,7 +58,7 @@ The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's
 
 - Dedicated Makefile icon in the Activity Bar.
 - Tree view grouped by workspace and Makefile when necessary.
-- Optional target categories with `##@` section markers.
+- Optional target categories from canonical section comments.
 - Click or use the inline play button to execute a target as a VS Code task.
 - Run targets with additional arguments or variable assignments.
 - Quick-pick command for keyboard-driven execution.
