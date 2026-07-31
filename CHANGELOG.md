@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2](https://github.com/sentenz/vscode-make/compare/1.0.1...1.0.2) (2026-07-31)
+
+### Bug Fixes
+
+* update target message handling and escapeMarkdown function ([21c1af0](https://github.com/sentenz/vscode-make/commit/21c1af001d8c2a69071f97af4be4bb6309ea0b00))
+
 ## [1.0.1](https://github.com/sentenz/vscode-make/compare/1.0.0...1.0.1) (2026-07-30)
 
 ### Bug Fixes
