@@ -44,26 +44,44 @@ alpha beta:: prerequisite
     ]);
   });
 
-  it('assigns persistent categories and supports clearing them', () => {
-    const result = parseMakefile(`##@ Build
-## Build the application
-build:
+  it('assigns persistent categories from canonical section headers', () => {
+    const result = parseMakefile(`# ─── Skills Manager ───────────────────────────────────────────────
+## Provision skills
+skills-agent-add:
 
 VARIABLE := value
-package: ## Package artifacts
+skills-agent-update: ## Update skills
 
-##@ Test
-test: ## Run the test suite
+# --- Dependencies ---------------------------------------------------------
+dependency-update: ## Update dependencies
 
-##@
-deploy: ## Deploy without a category
+# === Secrets
+secrets-encrypt: ## Encrypt secrets
 `);
 
     expect(result).toEqual([
-      { name: 'build', description: 'Build the application', category: 'Build', line: 2 },
-      { name: 'package', description: 'Package artifacts', category: 'Build', line: 5 },
-      { name: 'test', description: 'Run the test suite', category: 'Test', line: 8 },
-      { name: 'deploy', description: 'Deploy without a category', line: 11 },
+      { name: 'skills-agent-add', description: 'Provision skills', category: 'Skills Manager', line: 2 },
+      { name: 'skills-agent-update', description: 'Update skills', category: 'Skills Manager', line: 5 },
+      { name: 'dependency-update', description: 'Update dependencies', category: 'Dependencies', line: 8 },
+      { name: 'secrets-encrypt', description: 'Encrypt secrets', category: 'Secrets', line: 11 },
+    ]);
+  });
+
+  it('requires whitespace and at least three repeated separator signs for categories', () => {
+    const result = parseMakefile(`# ── Too Short ─────────────────────────
+short: ## Not categorized
+
+#─── Missing Space ──────────────────────
+compact: ## Not categorized either
+
+# ─── Valid ─────────────────────────────
+valid: ## Categorized
+`);
+
+    expect(result).toEqual([
+      { name: 'short', description: 'Not categorized', line: 1 },
+      { name: 'compact', description: 'Not categorized either', line: 4 },
+      { name: 'valid', description: 'Categorized', category: 'Valid', line: 7 },
     ]);
   });
 
