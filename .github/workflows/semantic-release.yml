@@ -40,15 +40,27 @@ jobs:
             @semantic-release/git@^10
             conventional-changelog-conventionalcommits@9.3.1
 
-  trigger:
-    name: Trigger Workflows
+  sbom:
+    name: SBOM
     needs:
       - semantic-release
     if: always() && needs.semantic-release.outputs.new-release-published == 'true'
     permissions:
       contents: write
-    uses: ./.github/workflows/trigger.yml
+    uses: ./.github/workflows/sbom.yml
     with:
+      version: ${{ needs.semantic-release.outputs.new-release-version }}
+
+  vscode-extension:
+    name: VS Code Extension
+    needs:
+      - semantic-release
+    if: always() && needs.semantic-release.outputs.new-release-published == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/vscode-extension.yml
+    with:
+      publish: true
       version: ${{ needs.semantic-release.outputs.new-release-version }}
     secrets:
       VSCE_PAT: ${{ secrets.VSCE_PAT }}
