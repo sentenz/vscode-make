@@ -55,7 +55,7 @@ function activate(context) {
             treeProvider.setDocuments(documents);
             const count = documents.reduce((sum, document) => sum + document.targets.length, 0);
             await vscode.commands.executeCommand('setContext', 'makefileTasks.hasTargets', count > 0);
-            treeView.message = count > 0 ? `${count} documented target${count === 1 ? '' : 's'}` : undefined;
+            treeView.message = count > 0 ? `${count} documented target${count === 1 ? '' : 's'}` : '';
             output.appendLine(`Discovered ${count} documented Makefile target${count === 1 ? '' : 's'}.`);
         }
         catch (error) {
