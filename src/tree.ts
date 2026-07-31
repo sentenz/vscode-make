@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { codeSpan } from './markdown';
 import type { MakefileDocument, MakefileTarget } from './model';
 
 type TreeNode = WorkspaceNode | MakefileNode | CategoryNode | TargetNode;
@@ -83,8 +84,9 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
     const item = new vscode.TreeItem(target.name, vscode.TreeItemCollapsibleState.None);
     item.iconPath = new vscode.ThemeIcon('play');
     item.contextValue = 'makefileTarget';
+    const usage = target.usage ? `  \nUsage: ${codeSpan(`make ${target.name} ${target.usage}`)}` : '';
     item.tooltip = new vscode.MarkdownString(
-      `${escapeMarkdown(target.description)}  \n\`${escapeMarkdown(target.makefileRelativePath)}:${target.line + 1}\``,
+      `${escapeMarkdown(target.description)}${usage}  \n\`${escapeMarkdown(target.makefileRelativePath)}:${target.line + 1}\``,
     );
     if (vscode.workspace.getConfiguration('makefileTasks').get<boolean>('runOnClick', true)) {
       item.command = {
