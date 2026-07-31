@@ -105,29 +105,29 @@ secrets-gpg-import:
 Targets can be organized with canonical section comments using this generic schema:
 
 ```text
-<comment><space><three-or-more-separator-signs><space><category><optional trailing separators>
+<comment><space><two-or-more-separator-signs><space><category><optional trailing separators>
 ```
 
-For Makefiles, the comment marker is `#`. The separator is any Unicode punctuation or symbol character repeated at least three times. Optional trailing separators use the same character. This includes separators such as `─`, `-`, `=`, `_`, and `#`. For example:
+For Makefiles, the comment marker is `#`. The separator is any Unicode punctuation or symbol character repeated at least twice. Optional trailing separators use the same character. This includes separators such as `─`, `-`, `=`, `_`, and `#`. For example:
 
 ```make
-# ─── Skills Manager ───────────────────────────────────────────────────────
+# ── Skills Manager ────────────────────────────────────────────────────────
 skills-agent-add: ## Provision Agent Skills
 	skills add ./skills
 
 skills-agent-update: ## Update Agent Skills
 	skills update ./skills
 
-# --- Dependencies ---------------------------------------------------------
+# -- Dependencies ----------------------------------------------------------
 dependency-update: ## Update project dependencies
 	renovate --platform=local
 
-# === Test ================================================================
+# == Test =================================================================
 test: ## Run the test suite
 	go test ./...
 ```
 
-A category applies to subsequent documented targets until another valid category header is encountered. The visual width of the header is not significant; only the leading run requires three or more repeated separator signs. Headers with fewer than three signs, or without whitespace between `#` and the separator run, are ordinary comments and do not affect categorization.
+A category applies to subsequent documented targets until another valid category header is encountered. The visual width of the header is not significant; only the leading run requires two or more repeated separator signs. Headers with fewer than two signs, or without whitespace between `#` and the separator run, are ordinary comments and do not affect categorization.
 
 When at least one target is categorized, the Activity Bar explorer groups targets by category and places targets without a category under **Uncategorized**.
 
