@@ -2,6 +2,7 @@ import type { ParsedTarget } from './model';
 
 const TARGET_NAME = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)[ \t]*::?(?![=])(.*)$/;
+const CATEGORY_HEADER = /^[ \t]*#[ \t]+([\p{P}\p{S}])\1{2,}[ \t]+(.+?)(?:[ \t]+\1+)?[ \t]*$/u;
 
 /**
  * Parses concrete Makefile rules documented by either:
@@ -13,6 +14,16 @@ const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)
  *
  *   build: ## Build the application
  *
+ * Categories can be declared with section comments matching:
+ *
+ *   # ─── Build ───────────────────────────────────────────────
+ *   build: ## Build the application
+ *
+ * The section header consists of a Makefile comment marker, whitespace, at
+ * least three copies of one Unicode punctuation or symbol character,
+ * whitespace, the category name, and an optional trailing run of the same
+ * character.
+ *
  * Pattern rules, variable assignments, recipes, and undocumented helper rules
  * are deliberately excluded.
  */
@@ -21,6 +32,7 @@ export function parseMakefile(content: string): ParsedTarget[] {
   const targets: ParsedTarget[] = [];
   const seen = new Set<string>();
   let pendingDescription: string[] = [];
+  let currentCategory: string | undefined;
 
   for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
     const line = lines[lineNumber] ?? '';
@@ -28,6 +40,13 @@ export function parseMakefile(content: string): ParsedTarget[] {
     // A tab starts a recipe in conventional Make syntax; never interpret recipe
     // content as metadata or as another target.
     if (line.startsWith('\t')) {
+      pendingDescription = [];
+      continue;
+    }
+
+    const categoryHeader = line.match(CATEGORY_HEADER);
+    if (categoryHeader) {
+      currentCategory = categoryHeader[2]?.trim();
       pendingDescription = [];
       continue;
     }
@@ -54,7 +73,12 @@ export function parseMakefile(content: string): ParsedTarget[] {
             continue;
           }
           seen.add(name);
-          targets.push({ name, description, line: lineNumber });
+          targets.push({
+            name,
+            description,
+            ...(currentCategory ? { category: currentCategory } : {}),
+            line: lineNumber,
+          });
         }
       }
 
@@ -63,7 +87,8 @@ export function parseMakefile(content: string): ParsedTarget[] {
     }
 
     // Documentation applies only to the immediately following rule. Any other
-    // Makefile construct invalidates the pending annotation.
+    // Makefile construct invalidates the pending annotation. Categories remain
+    // active as section metadata until another category header replaces them.
     pendingDescription = [];
   }
 

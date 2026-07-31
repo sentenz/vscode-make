@@ -48,7 +48,9 @@ export function activate(context: vscode.ExtensionContext): void {
       ordered.map((target) => ({
         label: `$(play) ${target.name}`,
         description: target.description,
-        detail: `${target.workspaceFolder.name}/${target.makefileRelativePath}`,
+        detail: [target.category, `${target.workspaceFolder.name}/${target.makefileRelativePath}`]
+          .filter((value): value is string => Boolean(value))
+          .join(' · '),
         target,
       })),
       { title: 'Run Makefile Target', matchOnDescription: true, matchOnDetail: true },

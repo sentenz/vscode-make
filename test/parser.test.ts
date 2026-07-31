@@ -44,6 +44,65 @@ alpha beta:: prerequisite
     ]);
   });
 
+  it('assigns persistent categories from canonical section headers', () => {
+    const result = parseMakefile(`# ─── Skills Manager ───────────────────────────────────────────────
+## Provision skills
+skills-agent-add:
+
+VARIABLE := value
+skills-agent-update: ## Update skills
+
+# --- Dependencies ---------------------------------------------------------
+dependency-update: ## Update dependencies
+
+# === Secrets
+secrets-encrypt: ## Encrypt secrets
+`);
+
+    expect(result).toEqual([
+      { name: 'skills-agent-add', description: 'Provision skills', category: 'Skills Manager', line: 2 },
+      { name: 'skills-agent-update', description: 'Update skills', category: 'Skills Manager', line: 5 },
+      { name: 'dependency-update', description: 'Update dependencies', category: 'Dependencies', line: 8 },
+      { name: 'secrets-encrypt', description: 'Encrypt secrets', category: 'Secrets', line: 11 },
+    ]);
+  });
+
+  it('requires whitespace and at least three repeated separator signs for categories', () => {
+    const result = parseMakefile(`# ── Too Short ─────────────────────────
+short: ## Not categorized
+
+#─── Missing Space ──────────────────────
+compact: ## Not categorized either
+
+# ─── Valid ─────────────────────────────
+valid: ## Categorized
+`);
+
+    expect(result).toEqual([
+      { name: 'short', description: 'Not categorized', line: 1 },
+      { name: 'compact', description: 'Not categorized either', line: 4 },
+      { name: 'valid', description: 'Categorized', category: 'Valid', line: 7 },
+    ]);
+  });
+
+  it('accepts punctuation and symbol separators but rejects format characters', () => {
+    const result = parseMakefile(`# \u200D\u200D\u200D Invisible \u200D\u200D\u200D
+format: ## Not categorized
+
+# ___ Build ___
+build: ## Build application
+
+# ### Test ###
+test: ## Run tests
+`);
+
+    expect(result).toEqual([
+      { name: 'format', description: 'Not categorized', line: 1 },
+      { name: 'build', description: 'Build application', category: 'Build', line: 4 },
+      { name: 'test', description: 'Run tests', category: 'Test', line: 7 },
+    ]);
+  });
+
   it('ignores pattern rules, assignments, recipes, and duplicate definitions', () => {
     const result = parseMakefile(`## Ignore pattern
 build-%:

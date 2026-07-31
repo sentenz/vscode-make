@@ -3,6 +3,7 @@ import type * as vscode from 'vscode';
 export interface ParsedTarget {
   readonly name: string;
   readonly description: string;
+  readonly category?: string;
   readonly line: number;
 }
 
