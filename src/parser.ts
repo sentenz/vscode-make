@@ -4,7 +4,7 @@ const TARGET_NAME = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)[ \t]*::?(?![=])(.*)$/;
 const USAGE_COMMENT = /^[ \t]*#[ \t]+Usage:[ \t]+make[ \t]+([A-Za-z0-9][A-Za-z0-9_.-]*)(?:[ \t]+(.*?))?[ \t]*$/i;
 const COMMENT_SPACER = /^[ \t]*#[ \t]*$/;
-const CATEGORY_HEADER = /^[ \t]*#[ \t]+([\p{P}\p{S}])\1{2,}[ \t]+(.+?)(?:[ \t]+\1+)?[ \t]*$/u;
+const CATEGORY_HEADER = /^[ \t]*#[ \t]+([\p{P}\p{S}])\1{1,}[ \t]+(.+?)(?:[ \t]+\1+)?[ \t]*$/u;
 
 /**
  * Parses concrete Makefile rules documented by either:
@@ -25,11 +25,11 @@ const CATEGORY_HEADER = /^[ \t]*#[ \t]+([\p{P}\p{S}])\1{2,}[ \t]+(.+?)(?:[ \t]+\
  *
  * Categories can be declared with section comments matching:
  *
- *   # ─── Build ───────────────────────────────────────────────
+ *   # ── Build ────────────────────────────────────────────────
  *   build: ## Build the application
  *
  * The section header consists of a Makefile comment marker, whitespace, at
- * least three copies of one Unicode punctuation or symbol character,
+ * least two copies of one Unicode punctuation or symbol character,
  * whitespace, the category name, and an optional trailing run of the same
  * character.
  *
