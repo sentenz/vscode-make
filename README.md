@@ -29,7 +29,7 @@ Targets can be organized with canonical section comments using this generic sche
 <comment><space><three-or-more-separator-signs><space><category><optional trailing separators>
 ```
 
-For Makefiles, the comment marker is `#`. The separator is any non-alphanumeric sign repeated at least three times. Optional trailing separators use the same sign. For example:
+For Makefiles, the comment marker is `#`. The separator is any Unicode punctuation or symbol character repeated at least three times. Optional trailing separators use the same character. This includes separators such as `─`, `-`, `=`, `_`, and `#`. For example:
 
 ```make
 # ─── Skills Manager ───────────────────────────────────────────────────────
