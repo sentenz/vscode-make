@@ -2,10 +2,10 @@
   "name": "makefile-task-explorer",
   "displayName": "Makefile Tasks",
   "description": "Discover documented Makefile targets and run them from an Activity Bar task explorer.",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "publisher": "sentenz",
   "license": "MIT",
-  "icon": "media/icon.png",
+  "icon": "assets/icon.png",
   "homepage": "https://github.com/sentenz/vscode-make#readme",
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
   "main": "./dist/extension.js",
   "files": [
     "dist/**",
-    "media/**",
+    "assets/**",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
@@ -75,7 +75,7 @@
         {
           "id": "makefileTasks",
           "title": "Makefile Tasks",
-          "icon": "media/makefile.svg"
+          "icon": "assets/makefile.svg"
         }
       ]
     },
@@ -84,7 +84,7 @@
         {
           "id": "makefileTasks.targets",
           "name": "Targets",
-          "icon": "media/makefile.svg",
+          "icon": "assets/makefile.svg",
           "contextualTitle": "Makefile Tasks"
         }
       ]
