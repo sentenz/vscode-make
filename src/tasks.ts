@@ -44,9 +44,13 @@ export function createMakeTask(target: MakefileTarget, extraArgs: readonly strin
     execution,
     [],
   );
-  task.detail = target.usage
-    ? `${target.description} · Usage: make ${target.name} ${target.usage}`
-    : target.description;
+  task.detail = [
+    target.description,
+    target.category ? `Category: ${target.category}` : undefined,
+    target.usage ? `Usage: make ${target.name} ${target.usage}` : undefined,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join(' · ');
   const group = taskGroupForCategory(target.category);
   if (group) {
     task.group = group;
