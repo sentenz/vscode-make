@@ -2,6 +2,8 @@ import type { ParsedTarget } from './model';
 
 const TARGET_NAME = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)[ \t]*::?(?![=])(.*)$/;
+const USAGE_COMMENT = /^[ \t]*#[ \t]+Usage:[ \t]+make[ \t]+([A-Za-z0-9][A-Za-z0-9_.-]*)(?:[ \t]+(.*?))?[ \t]*$/i;
+const COMMENT_SPACER = /^[ \t]*#[ \t]*$/;
 const CATEGORY_HEADER = /^[ \t]*#[ \t]+([\p{P}\p{S}])\1{2,}[ \t]+(.+?)(?:[ \t]+\1+)?[ \t]*$/u;
 
 /**
@@ -13,6 +15,13 @@ const CATEGORY_HEADER = /^[ \t]*#[ \t]+([\p{P}\p{S}])\1{2,}[ \t]+(.+?)(?:[ \t]+\
  * or:
  *
  *   build: ## Build the application
+ *
+ * Optional usage metadata can precede the documentation block:
+ *
+ *   # Usage: make deploy ENV=production <artifact>
+ *   #
+ *   ## Deploy an artifact
+ *   deploy:
  *
  * Categories can be declared with section comments matching:
  *
@@ -32,6 +41,7 @@ export function parseMakefile(content: string): ParsedTarget[] {
   const targets: ParsedTarget[] = [];
   const seen = new Set<string>();
   let pendingDescription: string[] = [];
+  let pendingUsage: { target: string; arguments: string } | undefined;
   let currentCategory: string | undefined;
 
   for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
@@ -41,6 +51,22 @@ export function parseMakefile(content: string): ParsedTarget[] {
     // content as metadata or as another target.
     if (line.startsWith('\t')) {
       pendingDescription = [];
+      pendingUsage = undefined;
+      continue;
+    }
+
+    const usageComment = line.match(USAGE_COMMENT);
+    if (usageComment) {
+      pendingUsage = {
+        target: usageComment[1] ?? '',
+        arguments: usageComment[2]?.trim() ?? '',
+      };
+      pendingDescription = [];
+      continue;
+    }
+
+    // A conventional `#` spacer is allowed between Usage and `##` metadata.
+    if (pendingUsage && COMMENT_SPACER.test(line)) {
       continue;
     }
 
@@ -48,6 +74,7 @@ export function parseMakefile(content: string): ParsedTarget[] {
     if (categoryHeader) {
       currentCategory = categoryHeader[2]?.trim();
       pendingDescription = [];
+      pendingUsage = undefined;
       continue;
     }
 
@@ -73,9 +100,11 @@ export function parseMakefile(content: string): ParsedTarget[] {
             continue;
           }
           seen.add(name);
+          const usage = pendingUsage?.target === name ? pendingUsage.arguments : undefined;
           targets.push({
             name,
             description,
+            ...(usage ? { usage } : {}),
             ...(currentCategory ? { category: currentCategory } : {}),
             line: lineNumber,
           });
@@ -83,13 +112,15 @@ export function parseMakefile(content: string): ParsedTarget[] {
       }
 
       pendingDescription = [];
+      pendingUsage = undefined;
       continue;
     }
 
-    // Documentation applies only to the immediately following rule. Any other
-    // Makefile construct invalidates the pending annotation. Categories remain
-    // active as section metadata until another category header replaces them.
+    // Documentation and usage metadata apply only to the immediately following
+    // rule. Any other Makefile construct invalidates those pending annotations.
+    // Categories remain active until another category header replaces them.
     pendingDescription = [];
+    pendingUsage = undefined;
   }
 
   return targets;
