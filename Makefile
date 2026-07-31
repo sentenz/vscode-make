@@ -557,32 +557,19 @@ container-docker-teardown:
 
 # ── VS Code Extension ─────────────────────────────────────────────────────────
 
-VSCODE_EXTENSION_DIR  ?= .
-VSCODE_EXTENSION_OUT  ?= out
+VSCODE_EXTENSION_DIR ?= .
+VSCODE_EXTENSION_OUT ?= out
 VSCODE_EXTENSION_VSIX ?= $(VSCODE_EXTENSION_OUT)/extension.vsix
-VSCODE_EXTENSION_ID   ?=
+VSCODE_EXTENSION_ID ?=
+VSCODE_EXTENSION_DIR_ABS := $(abspath $(VSCODE_EXTENSION_DIR))
+VSCODE_EXTENSION_OUT_ABS := $(abspath $(VSCODE_EXTENSION_OUT))
+VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
 
 VSCODE_CLI ?= code
 NPM        ?= npm
 VSCE       ?= $(NPM) exec -- vsce
 
-VSCODE_EXTENSION_DIR_ABS  := $(abspath $(VSCODE_EXTENSION_DIR))
-VSCODE_EXTENSION_OUT_ABS  := $(abspath $(VSCODE_EXTENSION_OUT))
-VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
-
-.PHONY: \
-	vscode-extension-dependencies \
-	vscode-extension-build \
-	vscode-extension-package \
-	vscode-extension-publish \
-	vscode-extension-install \
-	vscode-extension-uninstall \
-	vscode-extension-reinstall \
-	vscode-extension-clean
-
-# Usage:
-#   make vscode-extension-dependencies \
-#     [VSCODE_EXTENSION_DIR=<dir>]
+# Usage: make vscode-extension-dependencies [VSCODE_EXTENSION_DIR=<dir>]
 #
 ## Install the VS Code extension development dependencies
 vscode-extension-dependencies:
@@ -604,9 +591,7 @@ vscode-extension-dependencies:
 	}
 .PHONY: vscode-extension-dependencies
 
-# Usage:
-#   make vscode-extension-build \
-#     [VSCODE_EXTENSION_DIR=<dir>]
+# Usage: make vscode-extension-build [VSCODE_EXTENSION_DIR=<dir>]
 #
 ## Validate, test, and build the VS Code extension
 vscode-extension-build: vscode-extension-dependencies
@@ -614,11 +599,7 @@ vscode-extension-build: vscode-extension-dependencies
 	@cd "$(VSCODE_EXTENSION_DIR_ABS)" && $(NPM) run build
 .PHONY: vscode-extension-build
 
-# Usage:
-#   make vscode-extension-package \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCODE_EXTENSION_OUT=<out>] \
-#     [VSCODE_EXTENSION_VSIX=<file>]
+# Usage: make vscode-extension-package [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_OUT=<out>] [VSCODE_EXTENSION_VSIX=<file>]
 #
 ## Build and package the VS Code extension as a VSIX archive
 vscode-extension-package: vscode-extension-dependencies
@@ -630,10 +611,7 @@ vscode-extension-package: vscode-extension-dependencies
 	@echo "VSIX created: $(VSCODE_EXTENSION_VSIX_ABS)"
 .PHONY: vscode-extension-package
 
-# Usage:
-#   VSCE_PAT=<token> make vscode-extension-publish \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCE_PUBLISH_ARGS="patch|minor|major|<version>|..."]
+# Usage: VSCE_PAT=<token> make vscode-extension-publish [VSCODE_EXTENSION_DIR=<dir>] [VSCE_PUBLISH_ARGS="patch|minor|major|<version>|..."]
 #
 ## Build and publish the VS Code extension to the Visual Studio Marketplace
 vscode-extension-publish: vscode-extension-dependencies
@@ -643,12 +621,7 @@ vscode-extension-publish: vscode-extension-dependencies
 			$(VSCE_PUBLISH_ARGS)
 .PHONY: vscode-extension-publish
 
-# Usage:
-#   make vscode-extension-install \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCODE_EXTENSION_OUT=<out>] \
-#     [VSCODE_EXTENSION_VSIX=<file>] \
-#     [VSCODE_CLI=code]
+# Usage: make vscode-extension-install [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_OUT=<out>] [VSCODE_EXTENSION_VSIX=<file>] [VSCODE_CLI=code]
 #
 ## Package and install the VS Code extension locally
 vscode-extension-install: vscode-extension-package
@@ -665,11 +638,7 @@ vscode-extension-install: vscode-extension-package
 		--force
 .PHONY: vscode-extension-install
 
-# Usage:
-#   make vscode-extension-uninstall \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCODE_EXTENSION_ID=<publisher.name>] \
-#     [VSCODE_CLI=code]
+# Usage: make vscode-extension-uninstall [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_ID=<publisher.name>] [VSCODE_CLI=code]
 #
 # When VSCODE_EXTENSION_ID is omitted, the identifier is derived from
 # package.json as "<publisher>.<name>".
@@ -693,8 +662,7 @@ vscode-extension-uninstall:
 	"$(VSCODE_CLI)" --uninstall-extension "$$extension_id"
 .PHONY: vscode-extension-uninstall
 
-# Usage:
-#   make vscode-extension-reinstall [configuration...]
+# Usage: make vscode-extension-reinstall [configuration...]
 #
 ## Uninstall, rebuild, package, and install the VS Code extension
 vscode-extension-reinstall:
@@ -709,9 +677,7 @@ vscode-extension-reinstall:
 		VSCODE_CLI="$(VSCODE_CLI)"
 .PHONY: vscode-extension-reinstall
 
-# Usage:
-#   make vscode-extension-clean \
-#     [VSCODE_EXTENSION_OUT=<out>]
+# Usage: make vscode-extension-clean [VSCODE_EXTENSION_OUT=<out>]
 #
 ## Remove generated VS Code extension artifacts
 vscode-extension-clean:
