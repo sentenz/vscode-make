@@ -21,10 +21,32 @@ test: ## Run the test suite
 
 Undocumented helper rules, pattern rules such as `build-%`, variable assignments, and recipes are not listed.
 
+## Categories
+
+Targets can be organized with `##@` section markers:
+
+```make
+##@ Build
+build: ## Build the application
+	go build ./...
+
+package: ## Package release artifacts
+	./scripts/package.sh
+
+##@ Test
+test: ## Run the test suite
+	go test ./...
+```
+
+A category applies to subsequent documented targets until another `##@` marker is encountered. An empty `##@` marker clears the current category. When at least one target is categorized, the Activity Bar explorer groups targets by category and places targets without a category under **Uncategorized**.
+
+The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's corresponding built-in task groups, so those targets participate in commands such as **Tasks: Run Build Task** and **Tasks: Run Test Task**.
+
 ## Features
 
 - Dedicated Makefile icon in the Activity Bar.
 - Tree view grouped by workspace and Makefile when necessary.
+- Optional target categories with `##@` section markers.
 - Click or use the inline play button to execute a target as a VS Code task.
 - Run targets with additional arguments or variable assignments.
 - Quick-pick command for keyboard-driven execution.
