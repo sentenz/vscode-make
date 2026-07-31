@@ -91,7 +91,7 @@ scan:
   });
 
   it('assigns persistent categories from canonical section headers', () => {
-    const result = parseMakefile(`# ─── Skills Manager ───────────────────────────────────────────────
+    const result = parseMakefile(`# ── Skills Manager ────────────────────────────────────────────────
 ## Provision skills
 skills-agent-add:
 
@@ -113,14 +113,14 @@ secrets-encrypt: ## Encrypt secrets
     ]);
   });
 
-  it('requires whitespace and at least three repeated separator signs for categories', () => {
-    const result = parseMakefile(`# ── Too Short ─────────────────────────
+  it('requires whitespace and at least two repeated separator signs for categories', () => {
+    const result = parseMakefile(`# ─ Too Short ──────────────────────────
 short: ## Not categorized
 
-#─── Missing Space ──────────────────────
+#── Missing Space ───────────────────────
 compact: ## Not categorized either
 
-# ─── Valid ─────────────────────────────
+# ── Valid ──────────────────────────────
 valid: ## Categorized
 `);
 
@@ -132,13 +132,13 @@ valid: ## Categorized
   });
 
   it('accepts punctuation and symbol separators but rejects format characters', () => {
-    const result = parseMakefile(`# \u200D\u200D\u200D Invisible \u200D\u200D\u200D
+    const result = parseMakefile(`# \u200D\u200D Invisible \u200D\u200D
 format: ## Not categorized
 
-# ___ Build ___
+# __ Build __
 build: ## Build application
 
-# ### Test ###
+# ## Test ##
 test: ## Run tests
 `);
 
