@@ -45,6 +45,22 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
   public readonly onDidChangeTreeData = this.changed.event;
 
   private documents: readonly MakefileDocument[] = [];
+  private readonly categoryIconPath?: { readonly light: vscode.Uri; readonly dark: vscode.Uri };
+  private readonly taskIconPath?: { readonly light: vscode.Uri; readonly dark: vscode.Uri };
+
+  public constructor(extensionUri?: vscode.Uri) {
+    if (!extensionUri) {
+      return;
+    }
+    this.categoryIconPath = {
+      light: vscode.Uri.joinPath(extensionUri, 'assets', 'category-light.svg'),
+      dark: vscode.Uri.joinPath(extensionUri, 'assets', 'category-dark.svg'),
+    };
+    this.taskIconPath = {
+      light: vscode.Uri.joinPath(extensionUri, 'assets', 'task-light.svg'),
+      dark: vscode.Uri.joinPath(extensionUri, 'assets', 'task-dark.svg'),
+    };
+  }
 
   public setDocuments(documents: readonly MakefileDocument[]): void {
     this.documents = documents;
@@ -74,7 +90,7 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
     if (element.kind === 'category') {
       const label = element.category ?? 'Uncategorized';
       const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Expanded);
-      item.iconPath = new vscode.ThemeIcon('symbol-namespace');
+      item.iconPath = this.categoryIconPath ?? new vscode.ThemeIcon('symbol-namespace');
       item.contextValue = 'makefileCategory';
       item.description = `${element.targets.length}`;
       return item;
@@ -82,7 +98,7 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
 
     const target = element.target;
     const item = new vscode.TreeItem(target.name, vscode.TreeItemCollapsibleState.None);
-    item.iconPath = new vscode.ThemeIcon('play');
+    item.iconPath = this.taskIconPath ?? new vscode.ThemeIcon('play');
     item.contextValue = 'makefileTarget';
     const usage = target.usage ? `  \nUsage: ${codeSpan(`make ${target.name} ${target.usage}`)}` : '';
     const category = target.category ? `  \nCategory: ${escapeMarkdown(target.category)}` : '';
