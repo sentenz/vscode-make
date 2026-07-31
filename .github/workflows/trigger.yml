@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Trigger Workflows
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Release version and Git tag
+        required: true
+        type: string
+    secrets:
+      VSCE_PAT:
+        description: Visual Studio Marketplace access token
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: SBOM
+    permissions:
+      contents: write
+    uses: ./.github/workflows/sbom.yml
+    with:
+      version: ${{ inputs.version }}
+
+  vscode-extension:
+    name: VS Code Extension
+    permissions:
+      contents: write
+    uses: ./.github/workflows/vscode-extension.yml
+    with:
+      publish: true
+      version: ${{ inputs.version }}
+    secrets:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
