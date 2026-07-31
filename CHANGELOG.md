@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.3](https://github.com/sentenz/vscode-make/compare/1.0.2...1.0.3) (2026-07-31)
+
+### Bug Fixes
+
+* **ci:** use VS Code extension release version support ([494022f](https://github.com/sentenz/vscode-make/commit/494022f88035a9d074802b2cd35dd711523c62ba))
+
 ## [1.0.2](https://github.com/sentenz/vscode-make/compare/1.0.1...1.0.2) (2026-07-31)
 
 ### Bug Fixes
