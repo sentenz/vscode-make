@@ -21,6 +21,48 @@ test: ## Run the test suite
 
 Undocumented helper rules, pattern rules such as `build-%`, variable assignments, and recipes are not listed.
 
+## Usage metadata and input parameters
+
+Optional `# Usage: make <target> ...` metadata may be placed immediately before a documented target. A conventional `#` spacer between the usage line and `##` description is supported:
+
+```make
+# Usage: make secrets-sops-decrypt <files>
+#
+## Decrypt specified SOPS-encrypted files
+secrets-sops-decrypt:
+	@for file in $(filter-out $@,$(MAKECMDGOALS)); do \
+		sops decrypt "$$file"; \
+	done
+```
+
+The extension associates the usage suffix (`<files>` in this example) with the target and displays it in the target picker, explorer tooltip, VS Code task detail, and **Run Target with Arguments** input prompt.
+
+The argument input is passed to `make` after the selected target, so both positional goals and Make variable assignments are supported. For example:
+
+```text
+secrets/example.yaml.enc secrets/other.yaml.enc
+SAST_SEMGREP_FILES=src
+SAST_SEMGREP_FILES="src packages/shared"
+```
+
+These execute equivalently to:
+
+```sh
+make secrets-sops-decrypt secrets/example.yaml.enc secrets/other.yaml.enc
+make sast-semgrep-scan SAST_SEMGREP_FILES=src
+make sast-semgrep-scan 'SAST_SEMGREP_FILES=src packages/shared'
+```
+
+Usage metadata may describe positional arguments, variable assignments, or both:
+
+```make
+# Usage: make secrets-gpg-import [SECRETS_SOPS_UID=<uid>] <key-files>
+#
+## Import GPG keys and optionally set trust for a SOPS UID
+secrets-gpg-import:
+	# ...
+```
+
 ## Categories
 
 Targets can be organized with canonical section comments using this generic schema:
@@ -59,8 +101,9 @@ The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's
 - Dedicated Makefile icon in the Activity Bar.
 - Tree view grouped by workspace and Makefile when necessary.
 - Optional target categories from canonical section comments.
+- Optional usage metadata for target input parameters.
 - Click or use the inline play button to execute a target as a VS Code task.
-- Run targets with additional arguments or variable assignments.
+- Run targets with positional arguments or Make variable assignments.
 - Quick-pick command for keyboard-driven execution.
 - Go directly to a target definition.
 - Multi-root workspace and multiple-Makefile support.
@@ -77,7 +120,7 @@ The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's
 
 ## Task configuration
 
-Discovered targets appear under **Tasks: Run Task**. They may also be declared in `.vscode/tasks.json`:
+Discovered targets appear under **Tasks: Run Task**. They may also be declared in `.vscode/tasks.json` with positional arguments, variable assignments, or both:
 
 ```json
 {
@@ -85,9 +128,15 @@ Discovered targets appear under **Tasks: Run Task**. They may also be declared i
   "tasks": [
     {
       "type": "makefileTarget",
-      "target": "build",
+      "target": "secrets-sops-decrypt",
       "makefile": "Makefile",
-      "args": ["ENV=development"]
+      "args": ["secrets/example.yaml.enc", "secrets/other.yaml.enc"]
+    },
+    {
+      "type": "makefileTarget",
+      "target": "sast-semgrep-scan",
+      "makefile": "Makefile",
+      "args": ["SAST_SEMGREP_FILES=src"]
     }
   ]
 }
