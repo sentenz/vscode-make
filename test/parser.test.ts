@@ -44,6 +44,29 @@ alpha beta:: prerequisite
     ]);
   });
 
+  it('assigns persistent categories and supports clearing them', () => {
+    const result = parseMakefile(`##@ Build
+## Build the application
+build:
+
+VARIABLE := value
+package: ## Package artifacts
+
+##@ Test
+test: ## Run the test suite
+
+##@
+deploy: ## Deploy without a category
+`);
+
+    expect(result).toEqual([
+      { name: 'build', description: 'Build the application', category: 'Build', line: 2 },
+      { name: 'package', description: 'Package artifacts', category: 'Build', line: 5 },
+      { name: 'test', description: 'Run the test suite', category: 'Test', line: 8 },
+      { name: 'deploy', description: 'Deploy without a category', line: 11 },
+    ]);
+  });
+
   it('ignores pattern rules, assignments, recipes, and duplicate definitions', () => {
     const result = parseMakefile(`## Ignore pattern
 build-%:
