@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.0](https://github.com/sentenz/vscode-make/compare/1.3.0...1.4.0) (2026-07-31)
+
+### Features
+
+* add category dark icon ([dbf749d](https://github.com/sentenz/vscode-make/commit/dbf749dd72f9261ab7d21112d45ba773f3953b79))
+* add category light icon ([f799142](https://github.com/sentenz/vscode-make/commit/f799142693ad0d69caa4159b0d56e2e72609bea5))
+* add task dark icon ([c8a02af](https://github.com/sentenz/vscode-make/commit/c8a02af12b1b9573b5b859ec4052c59d052bbc9f))
+* add task light icon ([50ce9fb](https://github.com/sentenz/vscode-make/commit/50ce9fbf8b5c3c7084f941b5c08756563a46bd35))
+* resolve tree icons from extension assets ([054061e](https://github.com/sentenz/vscode-make/commit/054061ec85d4f7fb2e1b5b73d85db90fa858e3be))
+* use category and task icons ([6c4809a](https://github.com/sentenz/vscode-make/commit/6c4809a3d2a76b2513759231d43cf47d2029dd4e))
+
 ## [1.3.0](https://github.com/sentenz/vscode-make/compare/1.2.3...1.3.0) (2026-07-31)
 
 ### Features
