@@ -2,6 +2,7 @@ import type { ParsedTarget } from './model';
 
 const TARGET_NAME = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)[ \t]*::?(?![=])(.*)$/;
+const CATEGORY_HEADER = /^[ \t]*#[ \t]+([^\p{L}\p{N}_\s#])\1{2,}[ \t]+(.+?)(?:[ \t]+\1+)?[ \t]*$/u;
 
 /**
  * Parses concrete Makefile rules documented by either:
@@ -13,10 +14,14 @@ const RULE = /^([A-Za-z0-9][A-Za-z0-9_.-]*(?:[ \t]+[A-Za-z0-9][A-Za-z0-9_.-]*)*)
  *
  *   build: ## Build the application
  *
- * Categories can be declared with a persistent section marker:
+ * Categories can be declared with section comments matching:
  *
- *   ##@ Build
+ *   # ─── Build ───────────────────────────────────────────────
  *   build: ## Build the application
+ *
+ * The section header consists of a Makefile comment marker, whitespace, at
+ * least three copies of one non-alphanumeric separator sign, whitespace, the
+ * category name, and an optional trailing run of the same separator sign.
  *
  * Pattern rules, variable assignments, recipes, and undocumented helper rules
  * are deliberately excluded.
@@ -38,9 +43,9 @@ export function parseMakefile(content: string): ParsedTarget[] {
       continue;
     }
 
-    const categoryComment = line.match(/^[ ]*##@[ ]?(.*)$/);
-    if (categoryComment) {
-      currentCategory = categoryComment[1]?.trim() || undefined;
+    const categoryHeader = line.match(CATEGORY_HEADER);
+    if (categoryHeader) {
+      currentCategory = categoryHeader[2]?.trim();
       pendingDescription = [];
       continue;
     }
@@ -82,7 +87,7 @@ export function parseMakefile(content: string): ParsedTarget[] {
 
     // Documentation applies only to the immediately following rule. Any other
     // Makefile construct invalidates the pending annotation. Categories remain
-    // active as section metadata until another ##@ marker replaces or clears it.
+    // active as section metadata until another category header replaces them.
     pendingDescription = [];
   }
 
