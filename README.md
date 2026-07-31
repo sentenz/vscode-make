@@ -1,6 +1,43 @@
-# Makefile Tasks
+# VS Code Make
 
-A native VS Code task explorer for documented Makefile targets. The extension discovers targets marked with `##` comments, presents them in a dedicated Activity Bar view, and registers each target with VS Code's Tasks system.
+A native VS Code task explorer for documented Makefile targets.
+
+- [1. Details](#1-details)
+
+## 1. Details
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/en/download/)
+  > Node.js (>=22) is required to build and run the extension.
+
+- [Visual Studio Code](https://code.visualstudio.com/download)
+  > Visual Studio Code (>=1.80) is required to run the extension.
+
+### 1.2. Usage
+
+The extension discovers targets marked with `##` comments, presents them in a dedicated Activity Bar view, and registers each target with VS Code's Tasks system.
+
+1. Insights and Details
+
+    - VS Code [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
+      > Anatomy of a VS Code extension, including the structure of the extension folder and the purpose of each file.
+
+2. Usage and Instructions
+
+    - CI/CD
+
+      ```yaml
+      uses: .sentez/actions/vscode-extension
+      ```
+
+    - Tasks
+
+      ```bash
+      make vscode-extension-build
+      make vscode-extension-package
+      make vscode-extension-publish
+      ```
 
 ## Target format
 
