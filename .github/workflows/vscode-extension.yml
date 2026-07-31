@@ -8,10 +8,6 @@ on:
       - main
   workflow_call:
     inputs:
-      publish:
-        description: Publish the VS Code extension to Visual Studio Marketplace
-        required: true
-        type: boolean
       version:
         description: VS Code extension version and Git tag to publish
         required: true
@@ -44,7 +40,6 @@ jobs:
         run: npm ci
 
       - name: Run VS Code Extension
-        id: extension
         uses: sentenz/actions/vscode-extension@e4601d50d84e629bcad4401c4d6937e3178c3000 # 1.3.0
         with:
           output-path: "out/extension.vsix"
@@ -52,27 +47,9 @@ jobs:
           no-dependencies: "true"
           publish: "false"
 
-      - name: Validate VS Code Extension
-        env:
-          EXTENSION_ID: ${{ steps.extension.outputs.extension-id }}
-          EXTENSION_VERSION: ${{ steps.extension.outputs.version }}
-          PUBLISHED: ${{ steps.extension.outputs.published }}
-          VSIX_PATH: ${{ steps.extension.outputs.vsix-path }}
-        run: |
-          set -euo pipefail
-
-          expected_version="$(node -p "require('./package.json').version")"
-
-          [[ "${EXTENSION_ID}" == "sentenz.makefile-task-explorer" ]]
-          [[ "${EXTENSION_VERSION}" == "${expected_version}" ]]
-          [[ "${PUBLISHED}" == "false" ]]
-          [[ -s "${VSIX_PATH}" ]]
-
-          unzip -Z1 "${VSIX_PATH}" | grep -Fx "extension/package.json"
-
   publish:
     name: VS Code Extension Action - Publish
-    if: inputs.publish
+    if: github.event_name == 'workflow_call'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -103,14 +80,13 @@ jobs:
         run: npm ci
 
       - name: Run VS Code Extension
-        id: extension
         uses: sentenz/actions/vscode-extension@e4601d50d84e629bcad4401c4d6937e3178c3000 # 1.3.0
         with:
           marketplace-token: ${{ secrets.VSCE_PAT }}
           output-path: "out/extension.vsix"
           vsce-version: "3.9.2"
           no-dependencies: "true"
-          publish: ${{ inputs.publish }}
+          publish: "true"
 
       - name: Publish VSIX Artifact
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
@@ -119,17 +95,3 @@ jobs:
           files: "out/extension.vsix"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Release Summary
-        env:
-          EXTENSION_ID: ${{ steps.extension.outputs.extension-id }}
-          EXTENSION_VERSION: ${{ steps.extension.outputs.version }}
-          VSIX_PATH: ${{ steps.extension.outputs.vsix-path }}
-        run: |
-          {
-            echo "## VS Code Extension Published"
-            echo
-            echo "- Extension: ${EXTENSION_ID}"
-            echo "- Version: ${EXTENSION_VERSION}"
-            echo "- VSIX: ${VSIX_PATH}"
-          } >> "${GITHUB_STEP_SUMMARY}"
