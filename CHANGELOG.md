@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1](https://github.com/sentenz/vscode-make/compare/1.2.0...1.2.1) (2026-07-31)
+
+### Bug Fixes
+
+* preserve usage in target hover ([5b118d3](https://github.com/sentenz/vscode-make/commit/5b118d38af1471fa78c255bcbcc37a73e5a8c109))
+
 ## [1.2.0](https://github.com/sentenz/vscode-make/compare/1.1.0...1.2.0) (2026-07-31)
 
 ### Features
