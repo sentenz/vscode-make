@@ -44,6 +44,52 @@ alpha beta:: prerequisite
     ]);
   });
 
+  it('parses matching Usage metadata with positional and variable arguments', () => {
+    const result = parseMakefile(`# Usage: make secrets-sops-decrypt <files>
+#
+## Decrypt specified files
+secrets-sops-decrypt:
+
+# Usage: make secrets-gpg-import [SECRETS_SOPS_UID=<uid>] <key-files>
+#
+## Import GPG keys
+secrets-gpg-import:
+
+# Usage: make another-target <file>
+#
+## View one file
+secrets-sops-view:
+`);
+
+    expect(result).toEqual([
+      {
+        name: 'secrets-sops-decrypt',
+        description: 'Decrypt specified files',
+        usage: '<files>',
+        line: 3,
+      },
+      {
+        name: 'secrets-gpg-import',
+        description: 'Import GPG keys',
+        usage: '[SECRETS_SOPS_UID=<uid>] <key-files>',
+        line: 8,
+      },
+      { name: 'secrets-sops-view', description: 'View one file', line: 13 },
+    ]);
+  });
+
+  it('invalidates Usage metadata when another Makefile construct intervenes', () => {
+    const result = parseMakefile(`# Usage: make scan SAST_FILES=<files>
+SAST_FILES ?= .
+## Scan files
+scan:
+`);
+
+    expect(result).toEqual([
+      { name: 'scan', description: 'Scan files', line: 3 },
+    ]);
+  });
+
   it('assigns persistent categories from canonical section headers', () => {
     const result = parseMakefile(`# ─── Skills Manager ───────────────────────────────────────────────
 ## Provision skills
