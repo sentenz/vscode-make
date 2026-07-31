@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.2](https://github.com/sentenz/vscode-make/compare/1.2.1...1.2.2) (2026-07-31)
+
+### Bug Fixes
+
+* update version to 1.2.1 in package.json ([e111ba8](https://github.com/sentenz/vscode-make/commit/e111ba850c265d0659e194593b61d83b0275a867))
+
 ## [1.2.1](https://github.com/sentenz/vscode-make/compare/1.2.0...1.2.1) (2026-07-31)
 
 ### Bug Fixes
