@@ -48,7 +48,11 @@ export function activate(context: vscode.ExtensionContext): void {
       ordered.map((target) => ({
         label: `$(play) ${target.name}`,
         description: target.description,
-        detail: [target.category, `${target.workspaceFolder.name}/${target.makefileRelativePath}`]
+        detail: [
+          target.usage ? `make ${target.name} ${target.usage}` : undefined,
+          target.category,
+          `${target.workspaceFolder.name}/${target.makefileRelativePath}`,
+        ]
           .filter((value): value is string => Boolean(value))
           .join(' · '),
         target,
@@ -87,10 +91,11 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!target) {
         return;
       }
+      const usage = target.usage ? `make ${target.name} ${target.usage}` : undefined;
       const input = await vscode.window.showInputBox({
         title: `Run make ${target.name}`,
-        prompt: 'Additional make arguments or variable assignments',
-        placeHolder: 'ENV=development --jobs 4',
+        prompt: usage ? `Usage: ${usage}` : 'Additional make arguments or variable assignments',
+        placeHolder: target.usage ?? 'FILE=path/to/file ENV=development --jobs 4',
       });
       if (input === undefined) {
         return;
