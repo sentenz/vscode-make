@@ -18,6 +18,13 @@
     "vscode": "^1.100.0",
     "node": ">=20"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=22",
+      "onFail": "error"
+    }
+  },
   "categories": [
     "Other"
   ],
