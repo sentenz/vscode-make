@@ -37,7 +37,7 @@
           "package.json",
           "package-lock.json"
         ],
-        "message": "chore(release): version ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        "message": "chore(release): version ${nextRelease.version} [skip ci]"
       }
     ],
     "@semantic-release/github"
