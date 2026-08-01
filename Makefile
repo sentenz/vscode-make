@@ -24,7 +24,7 @@ K8S_STACK_DIR ?= manifests/overlays
 KIND_CLUSTER_NAME ?= template-k8s
 KIND_CONFIG ?= config/kind-cluster.yaml
 
-# ── General ──────────────────────────────────────────────────────────────────────────────────────
+# ─── General ─────────────────────────────────────────────────────────────────────────────────────
 
 default: help
 
@@ -37,7 +37,7 @@ help:
 	@awk '/^##/{c=substr($$0,3);next}c&&/^[[:alpha:]][[:alnum:]_-]+:/{print "$(shell tput -Txterm setaf 6)\t" substr($$1,1,index($$1,":")) "$(shell tput -Txterm sgr0)",c}1{c=0}' $(MAKEFILE_LIST) | column -s: -t
 .PHONY: help
 
-# ── Setup & Teardown ─────────────────────────────────────────────────────────────────────────────
+# ─── Setup & Teardown ────────────────────────────────────────────────────────────────────────────
 
 ## Initialize a software development workspace with requisites
 bootstrap:
@@ -54,7 +54,7 @@ teardown:
 	cd $(@D)/scripts && ./teardown.sh
 .PHONY: teardown
 
-# ── Git Hooks Manager ────────────────────────────────────────────────────────────────────────────
+# ─── Git Hooks Manager ───────────────────────────────────────────────────────────────────────────
 
 ## Initialize Lefthook Git hooks in the local repository
 githooks-lefthook-initialize:
@@ -66,7 +66,7 @@ githooks-lefthook-deinitialize:
 	lefthook uninstall
 .PHONY: githooks-lefthook-deinitialize
 
-# ── Skills Manager ───────────────────────────────────────────────────────────────────────────────
+# ─── Skills Manager ──────────────────────────────────────────────────────────────────────────────
 
 ## Provision new Agent Skills into the project environment
 skills-agent-add:
@@ -78,7 +78,7 @@ skills-agent-update:
 	DISABLE_TELEMETRY=1 skills update git@gitlab.samscm.net:development-environment/templates/skills.git
 .PHONY: skills-agent-update
 
-# ── Dependency Manager ───────────────────────────────────────────────────────────────────────────
+# ─── Dependency Manager ──────────────────────────────────────────────────────────────────────────
 
 DEPENDENCY_RENOVATE_IMAGE ?= docker.io/renovate/renovate:44.0.1@sha256:300772b384dad66ab20c0472de8c8e3d9dc75d473d509ae8c1c7fae3b8abfe04
 DEPENDENCY_RENOVATE_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace -e LOG_LEVEL=debug -e RENOVATE_REPOSITORIES -e RENOVATE_TOKEN=$(RENOVATE_TOKEN) "$(DEPENDENCY_RENOVATE_IMAGE)"
@@ -90,7 +90,7 @@ dependency-renovate-update:
 	$(DEPENDENCY_RENOVATE_ALIAS) renovate --platform=local --repository-cache=reset > logs/dependency/renovate.log 2>&1
 .PHONY: dependency-renovate-update
 
-# ── Secrets Manager ──────────────────────────────────────────────────────────────────────────────
+# ─── Secrets Manager ─────────────────────────────────────────────────────────────────────────────
 
 SECRETS_SOPS_IMAGE ?= ghcr.io/getsops/sops:v3.13.3@sha256:857f5a151ac0b2bfc55c1e4e5581d66fb8e268e4d106b38e74191f3bac9d58ea
 SECRETS_SOPS_ALIAS ?= docker run --rm -v "${PWD}:/workspace" -v "$${HOME}/.gnupg:/root/.gnupg" -w /workspace "$(SECRETS_SOPS_IMAGE)"
@@ -225,7 +225,7 @@ secrets-sops-view:
 	$(SECRETS_SOPS_ALIAS) decrypt "$(filter-out $@,$(MAKECMDGOALS))"
 .PHONY: secrets-sops-view
 
-# ── Policy Manager ───────────────────────────────────────────────────────────────────────────────
+# ─── Policy Manager ──────────────────────────────────────────────────────────────────────────────
 
 POLICY_CONFTEST_IMAGE ?= docker.io/openpolicyagent/conftest:v0.68.2@sha256:5fd81e332d7e4bc01daf3ef35371800a9a9720a30c0c37a78de0c5fbe4b6d622
 POLICY_CONFTEST_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace "$(POLICY_CONFTEST_IMAGE)"
@@ -261,9 +261,9 @@ policy-regal-lint:
 	$(POLICY_REGAL_ALIAS) lint "$(filter-out $@,$(MAKECMDGOALS))" --format json > logs/policy/regal.json 2>&1
 .PHONY: policy-regal-lint
 
-# ── SAST Manager ─────────────────────────────────────────────────────────────────────────────────
+# ─── SAST Manager ────────────────────────────────────────────────────────────────────────────────
 
-SAST_SEMGREP_IMAGE ?= semgrep/semgrep:1.171.0@sha256:bdf7013b2c3634a487671158da77c554f531742326b543a9464d2adf6c433ac8
+SAST_SEMGREP_IMAGE ?= semgrep/semgrep:1.172.0@sha256:65dcd4408adda7c183a6b4550cb1e9b19f7f627a6fbb7e0559bd466bedc44d7b
 SAST_SEMGREP_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace "$(SAST_SEMGREP_IMAGE)"
 SAST_SEMGREP_FILES ?= .
 SAST_SEMGREP_FILTER = $(if $(strip $(SAST_SEMGREP_FILES)),$(SAST_SEMGREP_FILES),.)
@@ -476,7 +476,7 @@ sast-trufflehog-git:
 	docker run --rm -v "${PWD}:/workspace" -w /workspace "$(SAST_IMAGE_TRUFFLEHOG)" git file:///workspace --no-update --json > logs/sast/trufflehog-git.json 2> logs/sast/trufflehog-git.log
 .PHONY: sast-trufflehog-git
 
-# ── Supply Chain Security ────────────────────────────────────────────────────────────────────────
+# ─── Supply Chain Security ───────────────────────────────────────────────────────────────────────
 
 SAST_COSIGN_IMAGE ?= cgr.dev/chainguard/cosign:3.0.0@sha256:b6bc266358e9368be1b3d01fca889b78d5ad5a47832986e14640c34a237ef638
 SAST_COSIGN_ALIAS := docker run --rm -v "${PWD}:/workspace" -w /workspace "$(SAST_COSIGN_IMAGE)"
@@ -524,7 +524,7 @@ sast-cosign-verify:
 	$(SAST_COSIGN_ALIAS) verify-attestation --key cosign.pub --type cyclonedx "$(filter-out $@,$(MAKECMDGOALS))" > logs/sbom/sbom.cdx.intoto.jsonl 2> logs/sast/cosign-verify.log
 .PHONY: sast-cosign-verify
 
-# ── Container Manager ────────────────────────────────────────────────────────────────────────────
+# ─── Container Manager ───────────────────────────────────────────────────────────────────────────
 
 CONTAINER_DOCKER_IMAGE ?= $(notdir $(shell git rev-parse --show-toplevel 2>/dev/null))
 CONTAINER_DOCKER_TAG ?= $(or $(shell git tag --sort=-creatordate | head -n 1),latest)
@@ -555,34 +555,21 @@ container-docker-teardown:
 	@docker volume prune -f -a --filter "label!=keep=true"
 .PHONY: container-docker-teardown
 
-# ── VS Code Extension ─────────────────────────────────────────────────────────
+# ─── VS Code Extension ───────────────────────────────────────────────────────────────────────────
 
-VSCODE_EXTENSION_DIR  ?= .
-VSCODE_EXTENSION_OUT  ?= out
+VSCODE_EXTENSION_DIR ?= .
+VSCODE_EXTENSION_OUT ?= out
 VSCODE_EXTENSION_VSIX ?= $(VSCODE_EXTENSION_OUT)/extension.vsix
-VSCODE_EXTENSION_ID   ?=
+VSCODE_EXTENSION_ID ?=
+VSCODE_EXTENSION_DIR_ABS := $(abspath $(VSCODE_EXTENSION_DIR))
+VSCODE_EXTENSION_OUT_ABS := $(abspath $(VSCODE_EXTENSION_OUT))
+VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
 
 VSCODE_CLI ?= code
 NPM        ?= npm
 VSCE       ?= $(NPM) exec -- vsce
 
-VSCODE_EXTENSION_DIR_ABS  := $(abspath $(VSCODE_EXTENSION_DIR))
-VSCODE_EXTENSION_OUT_ABS  := $(abspath $(VSCODE_EXTENSION_OUT))
-VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
-
-.PHONY: \
-	vscode-extension-dependencies \
-	vscode-extension-build \
-	vscode-extension-package \
-	vscode-extension-publish \
-	vscode-extension-install \
-	vscode-extension-uninstall \
-	vscode-extension-reinstall \
-	vscode-extension-clean
-
-# Usage:
-#   make vscode-extension-dependencies \
-#     [VSCODE_EXTENSION_DIR=<dir>]
+# Usage: make vscode-extension-dependencies [VSCODE_EXTENSION_DIR=<dir>]
 #
 ## Install the VS Code extension development dependencies
 vscode-extension-dependencies:
@@ -604,9 +591,7 @@ vscode-extension-dependencies:
 	}
 .PHONY: vscode-extension-dependencies
 
-# Usage:
-#   make vscode-extension-build \
-#     [VSCODE_EXTENSION_DIR=<dir>]
+# Usage: make vscode-extension-build [VSCODE_EXTENSION_DIR=<dir>]
 #
 ## Validate, test, and build the VS Code extension
 vscode-extension-build: vscode-extension-dependencies
@@ -614,11 +599,7 @@ vscode-extension-build: vscode-extension-dependencies
 	@cd "$(VSCODE_EXTENSION_DIR_ABS)" && $(NPM) run build
 .PHONY: vscode-extension-build
 
-# Usage:
-#   make vscode-extension-package \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCODE_EXTENSION_OUT=<out>] \
-#     [VSCODE_EXTENSION_VSIX=<file>]
+# Usage: make vscode-extension-package [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_OUT=<out>] [VSCODE_EXTENSION_VSIX=<file>]
 #
 ## Build and package the VS Code extension as a VSIX archive
 vscode-extension-package: vscode-extension-dependencies
@@ -630,10 +611,7 @@ vscode-extension-package: vscode-extension-dependencies
 	@echo "VSIX created: $(VSCODE_EXTENSION_VSIX_ABS)"
 .PHONY: vscode-extension-package
 
-# Usage:
-#   VSCE_PAT=<token> make vscode-extension-publish \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCE_PUBLISH_ARGS="patch|minor|major|<version>|..."]
+# Usage: VSCE_PAT=<token> make vscode-extension-publish [VSCODE_EXTENSION_DIR=<dir>] [VSCE_PUBLISH_ARGS="patch|minor|major|<version>|..."]
 #
 ## Build and publish the VS Code extension to the Visual Studio Marketplace
 vscode-extension-publish: vscode-extension-dependencies
@@ -643,12 +621,7 @@ vscode-extension-publish: vscode-extension-dependencies
 			$(VSCE_PUBLISH_ARGS)
 .PHONY: vscode-extension-publish
 
-# Usage:
-#   make vscode-extension-install \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCODE_EXTENSION_OUT=<out>] \
-#     [VSCODE_EXTENSION_VSIX=<file>] \
-#     [VSCODE_CLI=code]
+# Usage: make vscode-extension-install [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_OUT=<out>] [VSCODE_EXTENSION_VSIX=<file>] [VSCODE_CLI=code]
 #
 ## Package and install the VS Code extension locally
 vscode-extension-install: vscode-extension-package
@@ -665,11 +638,7 @@ vscode-extension-install: vscode-extension-package
 		--force
 .PHONY: vscode-extension-install
 
-# Usage:
-#   make vscode-extension-uninstall \
-#     [VSCODE_EXTENSION_DIR=<dir>] \
-#     [VSCODE_EXTENSION_ID=<publisher.name>] \
-#     [VSCODE_CLI=code]
+# Usage: make vscode-extension-uninstall [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_ID=<publisher.name>] [VSCODE_CLI=code]
 #
 # When VSCODE_EXTENSION_ID is omitted, the identifier is derived from
 # package.json as "<publisher>.<name>".
@@ -693,8 +662,7 @@ vscode-extension-uninstall:
 	"$(VSCODE_CLI)" --uninstall-extension "$$extension_id"
 .PHONY: vscode-extension-uninstall
 
-# Usage:
-#   make vscode-extension-reinstall [configuration...]
+# Usage: make vscode-extension-reinstall [configuration...]
 #
 ## Uninstall, rebuild, package, and install the VS Code extension
 vscode-extension-reinstall:
@@ -709,9 +677,7 @@ vscode-extension-reinstall:
 		VSCODE_CLI="$(VSCODE_CLI)"
 .PHONY: vscode-extension-reinstall
 
-# Usage:
-#   make vscode-extension-clean \
-#     [VSCODE_EXTENSION_OUT=<out>]
+# Usage: make vscode-extension-clean [VSCODE_EXTENSION_OUT=<out>]
 #
 ## Remove generated VS Code extension artifacts
 vscode-extension-clean:

@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: VS Code Extension
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      version:
+        description: VS Code extension release version and Git tag to publish
+        required: true
+        type: string
+    secrets:
+      VSCE_PAT:
+        description: Visual Studio Marketplace access token
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: VS Code Extension Action - Build
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run VS Code Extension
+        id: extension
+        uses: sentenz/actions/vscode-extension@c393f1ada4c285deb9408247138486bbc773b7fe # 1.4.0
+        with:
+          output-path: "out/extension.vsix"
+          no-dependencies: "true"
+          publish: "false"
+
+      - name: Verify VS Code Extension
+        env:
+          EXTENSION_ID: ${{ steps.extension.outputs.extension-id }}
+          EXTENSION_VERSION: ${{ steps.extension.outputs.version }}
+          PUBLISHED: ${{ steps.extension.outputs.published }}
+          VSIX_PATH: ${{ steps.extension.outputs.vsix-path }}
+        run: |
+          test "${EXTENSION_ID}" = "sentenz.makefile-task-explorer"
+          test "${EXTENSION_VERSION}" = "$(node -p 'require("./package.json").version')"
+          test "${PUBLISHED}" = "false"
+          test -s "${VSIX_PATH}"
+          unzip -l "${VSIX_PATH}" | grep -F "extension/package.json"
+
+  publish:
+    name: VS Code Extension Action - Publish
+    if: inputs.version != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.version }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run VS Code Extension
+        id: extension
+        uses: sentenz/actions/vscode-extension@c393f1ada4c285deb9408247138486bbc773b7fe # 1.4.0
+        with:
+          version: ${{ inputs.version }}
+          marketplace-token: ${{ secrets.VSCE_PAT }}
+          output-path: "out/extension.vsix"
+          no-dependencies: "true"
+          skip-duplicate: "true"
+
+      - name: Attach VSIX to GitHub Release
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          tag_name: ${{ inputs.version }}
+          files: ${{ steps.extension.outputs.vsix-path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

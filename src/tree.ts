@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import { codeSpan } from './markdown';
 import type { MakefileDocument, MakefileTarget } from './model';
 
-type TreeNode = WorkspaceNode | MakefileNode | TargetNode;
+type TreeNode = WorkspaceNode | MakefileNode | CategoryNode | TargetNode;
 
 interface WorkspaceNode {
   readonly kind: 'workspace';
@@ -12,6 +13,12 @@ interface WorkspaceNode {
 interface MakefileNode {
   readonly kind: 'makefile';
   readonly document: MakefileDocument;
+}
+
+interface CategoryNode {
+  readonly kind: 'category';
+  readonly category: string | undefined;
+  readonly targets: readonly MakefileTarget[];
 }
 
 export interface TargetNode {
@@ -38,6 +45,22 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
   public readonly onDidChangeTreeData = this.changed.event;
 
   private documents: readonly MakefileDocument[] = [];
+  private readonly categoryIconPath?: { readonly light: vscode.Uri; readonly dark: vscode.Uri };
+  private readonly taskIconPath?: { readonly light: vscode.Uri; readonly dark: vscode.Uri };
+
+  public constructor(extensionUri?: vscode.Uri) {
+    if (!extensionUri) {
+      return;
+    }
+    this.categoryIconPath = {
+      light: vscode.Uri.joinPath(extensionUri, 'assets', 'category-light.svg'),
+      dark: vscode.Uri.joinPath(extensionUri, 'assets', 'category-dark.svg'),
+    };
+    this.taskIconPath = {
+      light: vscode.Uri.joinPath(extensionUri, 'assets', 'task-light.svg'),
+      dark: vscode.Uri.joinPath(extensionUri, 'assets', 'task-dark.svg'),
+    };
+  }
 
   public setDocuments(documents: readonly MakefileDocument[]): void {
     this.documents = documents;
@@ -50,27 +73,37 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
 
   public getTreeItem(element: TreeNode): vscode.TreeItem {
     if (element.kind === 'workspace') {
-      const item = new vscode.TreeItem(element.folder.name, vscode.TreeItemCollapsibleState.Expanded);
+      const item = new vscode.TreeItem(element.folder.name, vscode.TreeItemCollapsibleState.Collapsed);
       item.iconPath = new vscode.ThemeIcon('root-folder');
       item.contextValue = 'makefileWorkspace';
       return item;
     }
 
     if (element.kind === 'makefile') {
-      const item = new vscode.TreeItem(element.document.relativePath, vscode.TreeItemCollapsibleState.Expanded);
+      const item = new vscode.TreeItem(element.document.relativePath, vscode.TreeItemCollapsibleState.Collapsed);
       item.resourceUri = element.document.uri;
       item.iconPath = new vscode.ThemeIcon('symbol-file');
       item.contextValue = 'makefileDocument';
       return item;
     }
 
+    if (element.kind === 'category') {
+      const label = element.category ?? 'Uncategorized';
+      const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Collapsed);
+      item.iconPath = this.categoryIconPath ?? new vscode.ThemeIcon('symbol-namespace');
+      item.contextValue = 'makefileCategory';
+      item.description = `${element.targets.length}`;
+      return item;
+    }
+
     const target = element.target;
     const item = new vscode.TreeItem(target.name, vscode.TreeItemCollapsibleState.None);
-    item.description = target.description;
-    item.iconPath = new vscode.ThemeIcon('play');
+    item.iconPath = this.taskIconPath ?? new vscode.ThemeIcon('play');
     item.contextValue = 'makefileTarget';
+    const usage = target.usage ? `  \nUsage: ${codeSpan(`make ${target.name} ${target.usage}`)}` : '';
+    const category = target.category ? `  \nCategory: ${escapeMarkdown(target.category)}` : '';
     item.tooltip = new vscode.MarkdownString(
-      `**${escapeMarkdown(target.name)}**  \n${escapeMarkdown(target.description)}  \n\`${escapeMarkdown(target.makefileRelativePath)}:${target.line + 1}\``,
+      `${escapeMarkdown(target.description)}${usage}${category}  \n\`${escapeMarkdown(target.makefileRelativePath)}:${target.line + 1}\``,
     );
     if (vscode.workspace.getConfiguration('makefileTasks').get<boolean>('runOnClick', true)) {
       item.command = {
@@ -88,12 +121,15 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
     }
     if (element.kind === 'workspace') {
       if (element.documents.length === 1) {
-        return this.targetNodes(element.documents[0]?.targets ?? []);
+        return this.contentNodes(element.documents[0]?.targets ?? []);
       }
       return element.documents.map((document) => ({ kind: 'makefile', document }));
     }
     if (element.kind === 'makefile') {
-      return this.targetNodes(element.document.targets);
+      return this.contentNodes(element.document.targets);
+    }
+    if (element.kind === 'category') {
+      return this.targetNodes(element.targets);
     }
     return [];
   }
@@ -118,7 +154,28 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
     if (onlyFolder.documents.length > 1) {
       return onlyFolder.documents.map((document) => ({ kind: 'makefile', document }));
     }
-    return this.targetNodes(onlyFolder.documents[0]?.targets ?? []);
+    return this.contentNodes(onlyFolder.documents[0]?.targets ?? []);
+  }
+
+  private contentNodes(targets: readonly MakefileTarget[]): Array<CategoryNode | TargetNode> {
+    if (!targets.some((target) => target.category !== undefined)) {
+      return this.targetNodes(targets);
+    }
+
+    const groups = new Map<string | undefined, MakefileTarget[]>();
+    for (const target of targets) {
+      const group = groups.get(target.category) ?? [];
+      group.push(target);
+      groups.set(target.category, group);
+    }
+
+    let entries = [...groups.entries()];
+    const sort = vscode.workspace.getConfiguration('makefileTasks').get<'source' | 'name'>('sort', 'source');
+    if (sort === 'name') {
+      entries = entries.sort(([left], [right]) => (left ?? 'Uncategorized').localeCompare(right ?? 'Uncategorized'));
+    }
+
+    return entries.map(([category, groupTargets]) => ({ kind: 'category', category, targets: groupTargets }));
   }
 
   private targetNodes(targets: readonly MakefileTarget[]): TargetNode[] {
@@ -131,5 +188,5 @@ export class MakefileTreeProvider implements vscode.TreeDataProvider<TreeNode> {
 }
 
 function escapeMarkdown(value: string): string {
-  return value.replace(/[\\`*_{}\[\]()#+\-.!|>]/g, '\\$&');
+  return value.replace(/[\\`*_{}[\]()#+\-.!|>]/g, '\\$&');
 }

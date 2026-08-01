@@ -6,6 +6,22 @@ function makefileDirectory(uri: vscode.Uri): string {
   return path.dirname(uri.fsPath);
 }
 
+function taskGroupForCategory(category: string | undefined): vscode.TaskGroup | undefined {
+  switch (category?.trim().toLowerCase()) {
+    case 'build':
+      return vscode.TaskGroup.Build;
+    case 'test':
+      return vscode.TaskGroup.Test;
+    case 'clean':
+      return vscode.TaskGroup.Clean;
+    case 'rebuild':
+    case 'rebuild all':
+      return vscode.TaskGroup.Rebuild;
+    default:
+      return undefined;
+  }
+}
+
 export function createMakeTask(target: MakefileTarget, extraArgs: readonly string[] = []): vscode.Task {
   const definition: MakefileTaskDefinition = {
     type: 'makefileTarget',
@@ -28,7 +44,17 @@ export function createMakeTask(target: MakefileTarget, extraArgs: readonly strin
     execution,
     [],
   );
-  task.detail = target.description;
+  task.detail = [
+    target.description,
+    target.category ? `Category: ${target.category}` : undefined,
+    target.usage ? `Usage: make ${target.name} ${target.usage}` : undefined,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join(' · ');
+  const group = taskGroupForCategory(target.category);
+  if (group) {
+    task.group = group;
+  }
   task.presentationOptions = {
     reveal: vscode.TaskRevealKind.Always,
     panel: vscode.TaskPanelKind.Shared,

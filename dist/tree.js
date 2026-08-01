@@ -133,5 +133,5 @@ class MakefileTreeProvider {
 }
 exports.MakefileTreeProvider = MakefileTreeProvider;
 function escapeMarkdown(value) {
-    return value.replace(/[\\`*_{}\[\]()#+\-.!|>]/g, '\\$&');
+    return value.replace(/[\\`*_{}[\]()#+\-.!|>]/g, '\\$&');
 }
