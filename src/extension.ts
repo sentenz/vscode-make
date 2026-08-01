@@ -8,7 +8,7 @@ import { MakefileTreeProvider, targetFromArgument, type TargetNode } from './tre
 export function activate(context: vscode.ExtensionContext): void {
   const output = vscode.window.createOutputChannel('Makefile Tasks', { log: true });
   const discovery = new MakefileDiscovery(output);
-  const treeProvider = new MakefileTreeProvider();
+  const treeProvider = new MakefileTreeProvider(context.extensionUri);
   const treeView = vscode.window.createTreeView('makefileTasks.targets', {
     treeDataProvider: treeProvider,
     showCollapseAll: true,
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext): void {
       treeProvider.setDocuments(documents);
       const count = documents.reduce((sum, document) => sum + document.targets.length, 0);
       await vscode.commands.executeCommand('setContext', 'makefileTasks.hasTargets', count > 0);
-      treeView.message = count > 0 ? `${count} documented target${count === 1 ? '' : 's'}` : undefined;
+      treeView.message = count > 0 ? `${count} documented target${count === 1 ? '' : 's'}` : '';
       output.appendLine(`Discovered ${count} documented Makefile target${count === 1 ? '' : 's'}.`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -48,7 +48,13 @@ export function activate(context: vscode.ExtensionContext): void {
       ordered.map((target) => ({
         label: `$(play) ${target.name}`,
         description: target.description,
-        detail: `${target.workspaceFolder.name}/${target.makefileRelativePath}`,
+        detail: [
+          target.usage ? `make ${target.name} ${target.usage}` : undefined,
+          target.category,
+          `${target.workspaceFolder.name}/${target.makefileRelativePath}`,
+        ]
+          .filter((value): value is string => Boolean(value))
+          .join(' · '),
         target,
       })),
       { title: 'Run Makefile Target', matchOnDescription: true, matchOnDetail: true },
@@ -85,10 +91,11 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!target) {
         return;
       }
+      const usage = target.usage ? `make ${target.name} ${target.usage}` : undefined;
       const input = await vscode.window.showInputBox({
         title: `Run make ${target.name}`,
-        prompt: 'Additional make arguments or variable assignments',
-        placeHolder: 'ENV=development --jobs 4',
+        prompt: usage ? `Usage: ${usage}` : 'Additional make arguments or variable assignments',
+        placeHolder: target.usage ?? 'FILE=path/to/file ENV=development --jobs 4',
       });
       if (input === undefined) {
         return;

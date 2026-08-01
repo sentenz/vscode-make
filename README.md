@@ -1,6 +1,43 @@
-# Makefile Tasks
+# VS Code Make
 
-A native VS Code task explorer for documented Makefile targets. The extension discovers targets marked with `##` comments, presents them in a dedicated Activity Bar view, and registers each target with VS Code's Tasks system.
+A native VS Code task explorer for documented Makefile targets.
+
+- [1. Details](#1-details)
+
+## 1. Details
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/en/download/)
+  > Node.js (>=22) is required to build and run the extension.
+
+- [Visual Studio Code](https://code.visualstudio.com/download)
+  > Visual Studio Code (>=1.80) is required to run the extension.
+
+### 1.2. Usage
+
+The extension discovers targets marked with `##` comments, presents them in a dedicated Activity Bar view, and registers each target with VS Code's Tasks system.
+
+1. Insights and Details
+
+    - VS Code [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
+      > Anatomy of a VS Code extension, including the structure of the extension folder and the purpose of each file.
+
+2. Usage and Instructions
+
+    - CI/CD
+
+      ```yaml
+      uses: .sentez/actions/vscode-extension
+      ```
+
+    - Tasks
+
+      ```bash
+      make vscode-extension-build
+      make vscode-extension-package
+      make vscode-extension-publish
+      ```
 
 ## Target format
 
@@ -21,12 +58,89 @@ test: ## Run the test suite
 
 Undocumented helper rules, pattern rules such as `build-%`, variable assignments, and recipes are not listed.
 
+## Usage metadata and input parameters
+
+Optional `# Usage: make <target> ...` metadata may be placed immediately before a documented target. A conventional `#` spacer between the usage line and `##` description is supported:
+
+```make
+# Usage: make secrets-sops-decrypt <files>
+#
+## Decrypt specified SOPS-encrypted files
+secrets-sops-decrypt:
+	@for file in $(filter-out $@,$(MAKECMDGOALS)); do \
+		sops decrypt "$$file"; \
+	done
+```
+
+The extension associates the usage suffix (`<files>` in this example) with the target and displays it in the target picker, explorer tooltip, VS Code task detail, and **Run Target with Arguments** input prompt.
+
+The argument input is passed to `make` after the selected target, so both positional goals and Make variable assignments are supported. For example:
+
+```text
+secrets/example.yaml.enc secrets/other.yaml.enc
+SAST_SEMGREP_FILES=src
+SAST_SEMGREP_FILES="src packages/shared"
+```
+
+These execute equivalently to:
+
+```sh
+make secrets-sops-decrypt secrets/example.yaml.enc secrets/other.yaml.enc
+make sast-semgrep-scan SAST_SEMGREP_FILES=src
+make sast-semgrep-scan 'SAST_SEMGREP_FILES=src packages/shared'
+```
+
+Usage metadata may describe positional arguments, variable assignments, or both:
+
+```make
+# Usage: make secrets-gpg-import [SECRETS_SOPS_UID=<uid>] <key-files>
+#
+## Import GPG keys and optionally set trust for a SOPS UID
+secrets-gpg-import:
+	# ...
+```
+
+## Categories
+
+Targets can be organized with canonical section comments using this generic schema:
+
+```text
+<comment><space><three-or-more-separator-signs><space><category><optional trailing separators>
+```
+
+For Makefiles, the comment marker is `#`. The separator is any Unicode punctuation or symbol character repeated at least three times. Optional trailing separators use the same character. This includes separators such as `─`, `-`, `=`, `_`, and `#`. For example:
+
+```make
+# ─── Skills Manager ───────────────────────────────────────────────────────
+skills-agent-add: ## Provision Agent Skills
+	skills add ./skills
+
+skills-agent-update: ## Update Agent Skills
+	skills update ./skills
+
+# --- Dependencies ---------------------------------------------------------
+dependency-update: ## Update project dependencies
+	renovate --platform=local
+
+# === Test ================================================================
+test: ## Run the test suite
+	go test ./...
+```
+
+A category applies to subsequent documented targets until another valid category header is encountered. The visual width of the header is not significant; only the leading run requires three or more repeated separator signs. Headers with fewer than three signs, or without whitespace between `#` and the separator run, are ordinary comments and do not affect categorization.
+
+When at least one target is categorized, the Activity Bar explorer groups targets by category and places targets without a category under **Uncategorized**.
+
+The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's corresponding built-in task groups, so those targets participate in commands such as **Tasks: Run Build Task** and **Tasks: Run Test Task**.
+
 ## Features
 
 - Dedicated Makefile icon in the Activity Bar.
 - Tree view grouped by workspace and Makefile when necessary.
+- Optional target categories from canonical section comments.
+- Optional usage metadata for target input parameters.
 - Click or use the inline play button to execute a target as a VS Code task.
-- Run targets with additional arguments or variable assignments.
+- Run targets with positional arguments or Make variable assignments.
 - Quick-pick command for keyboard-driven execution.
 - Go directly to a target definition.
 - Multi-root workspace and multiple-Makefile support.
@@ -43,7 +157,7 @@ Undocumented helper rules, pattern rules such as `build-%`, variable assignments
 
 ## Task configuration
 
-Discovered targets appear under **Tasks: Run Task**. They may also be declared in `.vscode/tasks.json`:
+Discovered targets appear under **Tasks: Run Task**. They may also be declared in `.vscode/tasks.json` with positional arguments, variable assignments, or both:
 
 ```json
 {
@@ -51,9 +165,15 @@ Discovered targets appear under **Tasks: Run Task**. They may also be declared i
   "tasks": [
     {
       "type": "makefileTarget",
-      "target": "build",
+      "target": "secrets-sops-decrypt",
       "makefile": "Makefile",
-      "args": ["ENV=development"]
+      "args": ["secrets/example.yaml.enc", "secrets/other.yaml.enc"]
+    },
+    {
+      "type": "makefileTarget",
+      "target": "sast-semgrep-scan",
+      "makefile": "Makefile",
+      "args": ["SAST_SEMGREP_FILES=src"]
     }
   ]
 }

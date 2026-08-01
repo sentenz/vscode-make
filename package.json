@@ -2,10 +2,10 @@
   "name": "makefile-task-explorer",
   "displayName": "Makefile Tasks",
   "description": "Discover documented Makefile targets and run them from an Activity Bar task explorer.",
-  "version": "1.0.0",
+  "version": "1.2.3",
   "publisher": "sentenz",
   "license": "MIT",
-  "icon": "media/icon.png",
+  "icon": "assets/icon.png",
   "homepage": "https://github.com/sentenz/vscode-make#readme",
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
   "main": "./dist/extension.js",
   "files": [
     "dist/**",
-    "media/**",
+    "assets/**",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
@@ -75,7 +75,7 @@
         {
           "id": "makefileTasks",
           "title": "Makefile Tasks",
-          "icon": "media/makefile.svg"
+          "icon": "assets/makefile.svg"
         }
       ]
     },
@@ -84,7 +84,7 @@
         {
           "id": "makefileTasks.targets",
           "name": "Targets",
-          "icon": "media/makefile.svg",
+          "icon": "assets/makefile.svg",
           "contextualTitle": "Makefile Tasks"
         }
       ]
@@ -210,7 +210,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:unit",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run --exclude \"test/integration/**\"",
     "compile:integration": "tsc -p tsconfig.integration.json",
     "test:integration": "npm run build && npm run compile:integration && node .integration-test/test/integration/runTest.js",
     "build": "tsc -p tsconfig.build.json",
@@ -226,7 +226,7 @@
     "@vscode/vsce": "^3.9.2",
     "eslint": "^10.8.0",
     "mocha": "^11.0.0",
-    "typescript": "7.0.2",
+    "typescript": "6.0.3",
     "typescript-eslint": "^8.65.0",
     "vitest": "^4.0.0"
   },
