@@ -13,7 +13,7 @@ VS Code Make discovers documented Makefile targets and exposes them through the 
 This specification defines:
 
 - documented target discovery;
-- target descriptions;
+- target descriptions and target-name grammar;
 - target categories;
 - usage metadata and target inputs;
 - generated Visual Studio Code tasks;
@@ -30,7 +30,7 @@ A file selected by the extension's configured discovery rules and interpreted as
 
 ### Target
 
-A Make rule name that can be invoked by passing the name to the configured Make command.
+A concrete rule name accepted by the extension's target-name grammar.
 
 ### Documented target
 
@@ -40,7 +40,7 @@ Only documented targets are exposed by the extension.
 
 ### Description
 
-Human-readable text associated with a target and displayed in extension user interfaces.
+Human-readable text associated with one or more target names declared by a documented rule and displayed in extension user interfaces.
 
 ### Category
 
@@ -64,7 +64,7 @@ Each discovered target has the following logical properties:
 
 | Property | Required | Description |
 | --- | --- | --- |
-| `target` | Yes | The Make target name. |
+| `target` | Yes | The discovered target name. |
 | `description` | Yes | The documented target description. |
 | `makefile` | Yes | The Makefile containing the target. |
 | `category` | No | The active category at the target definition. |
@@ -73,9 +73,34 @@ Each discovered target has the following logical properties:
 
 Implementations MAY retain additional source-location data for navigation and diagnostics.
 
+### Target-name grammar
+
+A discovered target name MUST match:
+
+```text
+[A-Za-z0-9][A-Za-z0-9_.-]*
+```
+
+A rule MAY declare more than one target name separated by spaces or tabs:
+
+```make
+## Build both variants
+alpha beta:: prerequisites
+```
+
+The rule above produces the documented targets `alpha` and `beta`, each with the same description.
+
+The parser retains only the first discovered occurrence of each target name. A later documented rule with an already discovered name MUST NOT produce a duplicate target.
+
+## Metadata indentation
+
+Annotation lines MAY have leading spaces.
+
+A line beginning with a tab is treated as recipe content and MUST NOT be interpreted as a description, usage annotation, category header, or target declaration.
+
 ## Documented target discovery
 
-A target MUST have a description to be included in discovery results.
+A target MUST have a non-empty description to be included in discovery results.
 
 Two description forms are supported.
 
@@ -91,22 +116,36 @@ build:
 
 The description is `Build the application` and the target is `build`.
 
-The description comment MUST begin with `##`. Leading indentation MAY be present. Whitespace after `##` is not part of the description.
+A preceding description comment MUST begin with `##` after any leading spaces. The marker and surrounding outer whitespace are not part of the description.
 
-A preceding description applies only to the next eligible target rule. It MUST NOT document an unrelated variable assignment, recipe line, or later rule separated by unrelated content.
+Consecutive preceding description comments are joined with a single space:
+
+```make
+## Build the application.
+## Produces release artifacts.
+build:
+```
+
+The resulting description is `Build the application. Produces release artifacts.` Empty `##` lines do not contribute text.
+
+A preceding description applies only to the immediately following eligible rule. An unrelated variable assignment, ordinary comment, blank line, recipe line, or other Makefile construct invalidates the pending description.
 
 ### Inline description
 
-A description following a target declaration documents that target:
+A description following a target declaration documents that rule:
 
 ```make
 test: ## Run the test suite
 	go test ./...
 ```
 
-The description is `Run the test suite` and the target is `test`.
+The inline marker MUST begin with `##`, MUST be preceded by the rule separator or whitespace, and MUST contain non-whitespace text. It may follow prerequisites:
 
-The inline description MUST appear on the target declaration line and MUST begin with `##` after the rule separator.
+```make
+test: dependencies ## Run the test suite
+```
+
+When an inline description is present, it takes precedence over any pending preceding description.
 
 ### Description requirements
 
@@ -115,15 +154,14 @@ A discovered description:
 - MUST contain non-whitespace text;
 - MUST be presented without the `##` marker;
 - SHOULD preserve meaningful punctuation and internal whitespace;
-- MUST be associated with exactly one discovered target.
-
-When a supported inline description is present, it defines the description for that target.
+- MAY be associated with each target name declared by the same documented rule.
 
 ### Excluded Makefile constructs
 
 The extension MUST NOT expose the following as documented targets solely because they resemble target syntax:
 
 - undocumented helper rules;
+- target names outside the supported grammar;
 - pattern rules such as `build-%`;
 - variable assignments;
 - recipe lines;
@@ -134,7 +172,7 @@ A target that is otherwise valid but has no supported description MUST NOT be li
 
 ## Usage metadata and inputs
 
-Usage metadata describes the arguments accepted after a target name.
+Usage metadata describes arguments accepted after a target name.
 
 ### Syntax
 
@@ -143,6 +181,8 @@ The canonical form is:
 ```text
 # Usage: make <target> <usage-suffix>
 ```
+
+Matching of `Usage` and `make` is case-insensitive. The target name follows the target-name grammar.
 
 Example:
 
@@ -160,13 +200,15 @@ For this target, the usage suffix is `<files>`.
 
 ### Association
 
-Usage metadata MUST be associated with the documented target that follows it.
+Usage metadata MUST precede the documented target to which it applies.
 
-A single conventional spacer comment containing only `#` MAY occur between the usage line and the description.
+Zero or more conventional spacer comments containing only `#` MAY occur between the usage line and the description block.
 
-The target name in the usage metadata SHOULD match the documented target name. Implementations SHOULD ignore malformed usage metadata rather than suppressing an otherwise valid documented target.
+The target name in usage metadata MUST match the discovered target name for the suffix to be associated. Mismatched or malformed usage metadata MUST NOT suppress an otherwise valid documented target.
 
-Usage metadata without a following documented target MUST NOT create a target.
+An unrelated Makefile construct invalidates pending usage metadata. Usage metadata without a following documented target MUST NOT create a target.
+
+For a rule declaring multiple targets, usage metadata is associated only with the target whose name matches the usage line.
 
 ### Usage suffix
 
@@ -184,23 +226,15 @@ Examples:
 
 ```make
 # Usage: make secrets-sops-decrypt <files>
-```
-
-```make
 # Usage: make sast-semgrep-scan SAST_SEMGREP_FILES=<path>
-```
-
-```make
 # Usage: make secrets-gpg-import [SECRETS_SOPS_UID=<uid>] <key-files>
 ```
 
-Usage notation is descriptive. Angle brackets and square brackets do not cause the extension to validate the supplied value.
+Usage notation is descriptive. Angle brackets and square brackets do not cause the extension to validate supplied values.
 
 ### Presentation
 
-When present, the usage suffix MUST be available to interfaces that explain or request target arguments.
-
-The extension displays usage information in the following contexts:
+When present, the usage suffix MUST be available in:
 
 - the target picker;
 - the explorer tooltip;
@@ -209,7 +243,7 @@ The extension displays usage information in the following contexts:
 
 ### Input semantics
 
-Input text is passed to Make after the selected target.
+Input text is split into ordered arguments without invoking a shell parser. Whitespace separates arguments unless enclosed in matching single or double quotes. A backslash escapes the next character outside single quotes.
 
 Given the target `secrets-sops-decrypt` and input:
 
@@ -226,32 +260,18 @@ make secrets-sops-decrypt secrets/example.yaml.enc secrets/other.yaml.enc
 Given the target `sast-semgrep-scan` and input:
 
 ```text
-SAST_SEMGREP_FILES=src
-```
-
-execution is equivalent to:
-
-```sh
-make sast-semgrep-scan SAST_SEMGREP_FILES=src
-```
-
-Inputs MAY combine positional goals and variable assignments.
-
-Quoted input MAY be used to preserve whitespace in one logical argument. For example:
-
-```text
 SAST_SEMGREP_FILES="src packages/shared"
 ```
 
-is equivalent to invoking:
+one logical argument is passed after the target, equivalent to:
 
 ```sh
 make sast-semgrep-scan 'SAST_SEMGREP_FILES=src packages/shared'
 ```
 
-The extension MUST preserve argument ordering after the target name.
+The extension MUST preserve argument ordering after the target name and MUST NOT interpret Make variable assignments as extension configuration.
 
-The extension MUST NOT interpret Make variable assignments as extension configuration.
+An unterminated quoted argument MUST prevent execution and produce an input error.
 
 ## Categories
 
@@ -262,15 +282,10 @@ Categories organize documented targets into named sections.
 A canonical category header has this structure:
 
 ```text
-<comment><space><separator-run><space><category><optional-trailing-separators>
+<optional-spaces>#<whitespace><separator-run><whitespace><category><optional-trailing-separators>
 ```
 
-For Makefiles:
-
-- `<comment>` is `#`;
-- `<separator-run>` is one Unicode punctuation or symbol character repeated at least three times;
-- `<category>` is non-empty category text;
-- optional trailing separators use the same separator character.
+The separator run consists of one Unicode punctuation or symbol character repeated at least three times. Optional trailing separators use the same character.
 
 Examples:
 
@@ -280,21 +295,13 @@ Examples:
 # === Test ================================================================
 ```
 
-Supported separator characters include, but are not limited to:
-
-- `─`;
-- `-`;
-- `=`;
-- `_`;
-- `#`.
-
-The visual width of a header is not significant.
+Supported separator characters include, but are not limited to `─`, `-`, `=`, `_`, and `#`. The visual width of a header is not significant.
 
 ### Category validity
 
 A category header MUST:
 
-- begin with `#`;
+- begin with `#` after any leading spaces;
 - contain whitespace between `#` and the leading separator run;
 - use at least three repeated separator characters;
 - contain non-empty category text after the leading separator run.
@@ -311,24 +318,7 @@ The following are ordinary comments and MUST NOT change the active category:
 
 A valid category applies to each subsequent documented target until another valid category header is encountered.
 
-Example:
-
-```make
-# --- Dependencies ---------------------------------------------------------
-dependency-install: ## Install dependencies
-	npm install
-
-dependency-update: ## Update dependencies
-	renovate --platform=local
-
-# === Test ================================================================
-test: ## Run the test suite
-	npm test
-```
-
-The first two targets belong to `Dependencies`; `test` belongs to `Test`.
-
-Undocumented rules do not terminate the active category.
+Undocumented rules and unrelated Makefile constructs do not terminate the active category.
 
 ### Uncategorized targets
 
@@ -336,22 +326,21 @@ A documented target with no active category has no category association.
 
 When at least one discovered target has a category, the explorer MUST group targets without a category under **Uncategorized**.
 
-When no discovered target has a category, implementations MAY omit the category grouping level.
+When no discovered target has a category, the category grouping level is omitted.
 
 ### Built-in Visual Studio Code task groups
 
-The following category names map to Visual Studio Code built-in task groups:
+Category matching for built-in task groups ignores leading and trailing whitespace and is case-insensitive.
 
-| Category | Visual Studio Code task group |
+| Category value | Visual Studio Code task group |
 | --- | --- |
 | `Build` | Build |
 | `Test` | Test |
 | `Clean` | Clean |
 | `Rebuild` | Rebuild |
+| `Rebuild All` | Rebuild |
 
-Targets in these categories participate in corresponding Visual Studio Code task commands, including **Tasks: Run Build Task** and **Tasks: Run Test Task**.
-
-Other category names remain valid organizational categories but do not map to a built-in task group.
+The values in the table represent canonical capitalization; equivalent case variants map to the same group. Other category names remain valid organizational categories but do not map to a built-in task group.
 
 ## Visual Studio Code task integration
 
@@ -380,36 +369,27 @@ A target MAY also be declared explicitly in `.vscode/tasks.json` using the `make
 | Property | Required | Description |
 | --- | --- | --- |
 | `type` | Yes | MUST be `makefileTarget`. |
-| `target` | Yes | Target name passed to Make. |
-| `makefile` | Yes | Makefile used for execution. |
+| `target` | Yes | Target name to execute. |
+| `makefile` | No | Workspace-relative Makefile path used to disambiguate the target. |
 | `args` | No | Ordered arguments passed after the target. |
+
+When `makefile` is omitted, the task provider resolves the first discovered target with the requested name in the task's workspace scope. Explicitly setting `makefile` is RECOMMENDED whenever more than one discovered Makefile defines the same target name.
+
+A task that cannot be matched to a discovered target is not resolved.
 
 `args` MAY contain positional goals, Make variable assignments, or both.
 
-Example with a variable assignment:
-
-```json
-{
-  "type": "makefileTarget",
-  "target": "sast-semgrep-scan",
-  "makefile": "Makefile",
-  "args": ["SAST_SEMGREP_FILES=src"]
-}
-```
-
 ### Command construction
 
-The logical command order is:
+For a resolved target, the logical command order is:
 
 ```text
-<make-command> <makefile-selection> <target> <args...>
+<make-command> -f <makefile-basename> <target> <args...>
 ```
 
-The configured Make command MUST be used.
+The command runs with the selected Makefile's directory as its working directory.
 
-The selected target MUST precede all user-supplied arguments.
-
-Arguments declared in `args` MUST retain their array order.
+The configured Make command MUST be used. The selected target MUST precede all user-supplied arguments, and arguments declared in `args` MUST retain their array order.
 
 ## User interface behavior
 
@@ -425,7 +405,7 @@ The explorer MUST present discovered targets and SHOULD expose:
 - usage metadata when present;
 - workspace and Makefile grouping when necessary.
 
-Selecting a target follows the configured click behavior. An inline play action executes the target as a Visual Studio Code task.
+Selecting a target runs it only when `makefileTasks.runOnClick` is enabled. The inline play action executes the target as a Visual Studio Code task.
 
 ### Commands
 
@@ -449,33 +429,46 @@ Target selection interfaces SHOULD include enough context to distinguish targets
 
 The extension supports more than one discovered Makefile.
 
-When multiple Makefiles are present, targets MUST retain their Makefile association for display, task identity, navigation, and execution.
+Targets MUST retain their Makefile association for display, task identity, navigation, and execution.
 
 ### Multi-root workspaces
 
 The extension supports multi-root Visual Studio Code workspaces.
 
-Targets MUST retain their workspace-folder association. Interfaces SHOULD group by workspace folder when required to avoid ambiguity.
+Targets MUST retain their workspace-folder association. Interfaces group by workspace folder when more than one folder contains discovered targets.
 
 ### Discovery configuration
 
 Makefile discovery is controlled by extension configuration, including:
 
-- discovery globs;
-- exclusions;
-- sorting;
-- the Make command;
-- click behavior.
+- `makefileTasks.fileGlobs`;
+- `makefileTasks.excludeGlob`;
+- `makefileTasks.sort`;
+- `makefileTasks.makeCommand`;
+- `makefileTasks.runOnClick`;
+- `makefileTasks.autoRefresh`.
 
-Only files included by the effective discovery configuration are sources of discovered targets.
+Only files included by the effective discovery globs and not excluded by the effective exclusion pattern are sources of discovered targets.
 
 ## Refresh behavior
 
-The extension automatically refreshes target discovery after relevant Makefile changes.
+The extension performs an initial discovery pass when activated.
 
-The **Refresh Targets** command MUST request a new discovery pass.
+The **Refresh Targets** command MUST request a new discovery pass regardless of the `makefileTasks.autoRefresh` setting.
 
-After refresh, removed targets MUST no longer be presented and changed metadata MUST replace stale metadata.
+Changes to extension configuration under `makefileTasks` request a new discovery pass.
+
+When `makefileTasks.autoRefresh` is enabled, the extension schedules discovery after:
+
+- a save of a currently discovered Makefile;
+- a workspace-folder change;
+- create, change, or delete events matching `**/{Makefile,makefile,GNUmakefile,*.mk}`.
+
+Files discovered only through custom `makefileTasks.fileGlobs` that do not match the watcher pattern may require the **Refresh Targets** command after external creation, deletion, or modification.
+
+When `makefileTasks.autoRefresh` is disabled, file and workspace events MUST NOT schedule automatic discovery.
+
+After a completed refresh, removed targets MUST no longer be presented and changed metadata MUST replace stale metadata.
 
 ## Error handling
 
@@ -483,46 +476,41 @@ A malformed annotation SHOULD be ignored without preventing discovery of unrelat
 
 An unsupported Makefile construct MUST NOT be exposed as a target merely because it contains comment markers resembling supported annotations.
 
+A Makefile that cannot be read is skipped and the failure is written to the extension output channel.
+
 Execution failures from Make are task execution failures and SHOULD be surfaced through normal Visual Studio Code task output and status mechanisms.
 
 ## Conformance examples
 
-### Preceding description
+### Consecutive descriptions and multiple targets
 
 Input:
 
 ```make
-## Build the application
-build:
-	go build ./...
+## First sentence.
+## Second sentence.
+alpha beta:: prerequisite
 ```
 
-Expected target:
+Expected targets:
 
 ```json
-{
-  "target": "build",
-  "description": "Build the application"
-}
+[
+  { "target": "alpha", "description": "First sentence. Second sentence." },
+  { "target": "beta", "description": "First sentence. Second sentence." }
+]
 ```
 
-### Inline description
+### Leading tab is recipe content
 
 Input:
 
 ```make
-test: ## Run the test suite
-	go test ./...
+	## Not target documentation
+hidden:
 ```
 
-Expected target:
-
-```json
-{
-  "target": "test",
-  "description": "Run the test suite"
-}
-```
+Expected result: `hidden` is not discovered.
 
 ### Category and usage metadata
 
@@ -570,17 +558,15 @@ Test
   test
 ```
 
-### Invalid category header
+### Invalid target name
 
 Input:
 
 ```make
-# -- Build
-build: ## Build the application
-	go build ./...
+docs/build: ## Build documentation
 ```
 
-Expected result: `build` is discovered without a category because the separator run contains fewer than three characters.
+Expected result: the rule is not exposed because `/` is outside the supported target-name grammar.
 
 ### Excluded targets
 
@@ -598,6 +584,6 @@ Expected result: neither rule is exposed. `helper` is undocumented and `build-%`
 
 ## Compatibility
 
-The README provides the concise user-facing description of these features. This specification is the normative reference for annotation syntax and externally observable behavior.
+The root README provides the concise user-facing description of these features. This specification is the normative reference for annotation syntax and externally observable behavior.
 
-Changes that alter documented target discovery, category parsing, usage metadata, input handling, or generated task behavior SHOULD update this specification in the same pull request.
+Changes that alter documented target discovery, category parsing, usage metadata, input handling, generated task behavior, or refresh behavior SHOULD update this specification in the same pull request.
