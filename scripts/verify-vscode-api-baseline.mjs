@@ -27,5 +27,3 @@ if (lockEngineRange !== engineRange) {
     `package-lock.json engines.vscode (${JSON.stringify(lockEngineRange)}) must match package.json (${JSON.stringify(engineRange)})`,
   );
 }
-
-process.stdout.write(`VS Code API baseline verified: ${engineRange}\n`);
