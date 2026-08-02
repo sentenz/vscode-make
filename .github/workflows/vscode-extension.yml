@@ -36,6 +36,9 @@ jobs:
           node-version: "22"
           cache: npm
 
+      - name: Verify VS Code API Baseline
+        run: node scripts/verify-vscode-api-baseline.mjs
+
       - name: Install Dependencies
         run: npm ci
 
@@ -79,6 +82,9 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+
+      - name: Verify VS Code API Baseline
+        run: node scripts/verify-vscode-api-baseline.mjs
 
       - name: Install Dependencies
         run: npm ci
