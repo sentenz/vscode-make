@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "rebaseWhen": "auto",
+  "rebaseWhen": "behind-base-branch",
   "minimumReleaseAge": "1 day",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
   "internalChecksFilter": "strict",
@@ -55,6 +55,9 @@
   "packageRules": [
     {
       "description": "Group major updates.",
+      "matchManagers": [
+        "!npm"
+      ],
       "matchDatasources": [
         "!docker"
       ],
@@ -67,6 +70,9 @@
     },
     {
       "description": "Group minor updates.",
+      "matchManagers": [
+        "!npm"
+      ],
       "matchDatasources": [
         "!docker"
       ],
@@ -79,6 +85,9 @@
     },
     {
       "description": "Group patch updates.",
+      "matchManagers": [
+        "!npm"
+      ],
       "matchDatasources": [
         "!docker"
       ],
@@ -87,6 +96,27 @@
       ],
       "groupName": "patch versions",
       "groupSlug": "patch-versions",
+      "automerge": false
+    },
+    {
+      "description": "Group npm dependency updates from package.json and package-lock.json.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "package.json",
+        "package-lock.json"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "groupName": "npm dependencies",
+      "groupSlug": "npm-dependencies",
+      "semanticCommits": "enabled",
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "deps",
       "automerge": false
     },
     {
