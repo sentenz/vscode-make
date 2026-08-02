@@ -28,4 +28,4 @@ if (lockEngineRange !== engineRange) {
   );
 }
 
-console.log(`VS Code API baseline verified: ${engineRange}`);
+process.stdout.write(`VS Code API baseline verified: ${engineRange}\n`);
