@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.1](https://github.com/sentenz/vscode-make/compare/1.4.0...1.4.1) (2026-08-02)
+
+### Bug Fixes
+
+* **deps:** update node.js to v24 ([#27](https://github.com/sentenz/vscode-make/issues/27)) ([64f9147](https://github.com/sentenz/vscode-make/commit/64f9147a86edee902435fd2faeb61ddd97ccde37))
+
 ## [1.4.0](https://github.com/sentenz/vscode-make/compare/1.3.0...1.4.0) (2026-07-31)
 
 ### Features
