@@ -104,8 +104,7 @@
         "npm"
       ],
       "matchFileNames": [
-        "package.json",
-        "package-lock.json"
+        "package.json"
       ],
       "matchUpdateTypes": [
         "major",
@@ -118,6 +117,17 @@
       "semanticCommitType": "fix",
       "semanticCommitScope": "deps",
       "automerge": false
+    },
+    {
+      "description": "Manage the VS Code API compatibility baseline manually.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepNames": [
+        "vscode",
+        "@types/vscode"
+      ],
+      "enabled": false
     },
     {
       "description": "Pin Dockerfile and Containerfile images to immutable digests.",

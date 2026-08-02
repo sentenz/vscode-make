@@ -214,7 +214,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run check && npm run build",
-    "check": "npm run lint && npm run typecheck && npm run test:unit",
+    "check": "npm run check:vscode-api-baseline && npm run lint && npm run typecheck && npm run test:unit",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:unit",
@@ -223,7 +223,8 @@
     "test:integration": "npm run build && npm run compile:integration && node .integration-test/test/integration/runTest.js",
     "build": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
-    "package": "vsce package --no-dependencies"
+    "package": "vsce package --no-dependencies",
+    "check:vscode-api-baseline": "node scripts/check-vscode-api-baseline.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
