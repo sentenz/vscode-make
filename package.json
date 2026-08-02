@@ -15,7 +15,7 @@
     "url": "https://github.com/sentenz/vscode-make/issues"
   },
   "engines": {
-    "vscode": "^1.100.0",
+    "vscode": "^1.125.0",
     "node": ">=20"
   },
   "devEngines": {
