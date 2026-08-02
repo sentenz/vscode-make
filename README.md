@@ -23,6 +23,8 @@ The extension discovers targets marked with `##` comments, presents them in a de
     - VS Code [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
       > Anatomy of a VS Code extension, including the structure of the extension folder and the purpose of each file.
 
+    - [Make Tasks specification](docs/make-tasks-specification.md)
+      > The Make Tasks Specification is the normative reference for annotation syntax and externally observable behavior.
 2. Usage and Instructions
 
     - CI/CD
@@ -49,6 +51,14 @@ build:
 	go build ./...
 ```
 
+Consecutive description lines are joined with spaces, and a rule may declare multiple target names:
+
+```make
+## Build both variants.
+## Produces release artifacts.
+alpha beta:: prerequisites
+```
+
 The conventional inline form is also supported:
 
 ```make
@@ -56,11 +66,13 @@ test: ## Run the test suite
 	go test ./...
 ```
 
-Undocumented helper rules, pattern rules such as `build-%`, variable assignments, and recipes are not listed.
+Annotation lines may have leading spaces. Lines beginning with a tab are recipe content and are not treated as annotations.
+
+Discovered target names use the grammar `[A-Za-z0-9][A-Za-z0-9_.-]*`. Undocumented helper rules, pattern rules such as `build-%`, variable assignments, recipes, unsupported target names, and duplicate documented definitions are not listed.
 
 ## Usage metadata and input parameters
 
-Optional `# Usage: make <target> ...` metadata may be placed immediately before a documented target. A conventional `#` spacer between the usage line and `##` description is supported:
+Optional `# Usage: make <target> ...` metadata may be placed immediately before a documented target. Conventional `#` spacers between the usage line and `##` description are supported:
 
 ```make
 # Usage: make secrets-sops-decrypt <files>
@@ -72,7 +84,7 @@ secrets-sops-decrypt:
 	done
 ```
 
-The extension associates the usage suffix (`<files>` in this example) with the target and displays it in the target picker, explorer tooltip, VS Code task detail, and **Run Target with Arguments** input prompt.
+The extension associates the usage suffix (`<files>` in this example) with the matching target and displays it in the target picker, explorer tooltip, VS Code task detail, and **Run Target with Arguments** input prompt.
 
 The argument input is passed to `make` after the selected target, so both positional goals and Make variable assignments are supported. For example:
 
@@ -131,7 +143,7 @@ A category applies to subsequent documented targets until another valid category
 
 When at least one target is categorized, the Activity Bar explorer groups targets by category and places targets without a category under **Uncategorized**.
 
-The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's corresponding built-in task groups, so those targets participate in commands such as **Tasks: Run Build Task** and **Tasks: Run Test Task**.
+Category-to-task-group matching is case-insensitive. `Build`, `Test`, `Clean`, `Rebuild`, and `Rebuild All` map to VS Code's corresponding built-in task groups, so those targets participate in commands such as **Tasks: Run Build Task** and **Tasks: Run Test Task**.
 
 ## Features
 
@@ -144,8 +156,8 @@ The `Build`, `Test`, `Clean`, and `Rebuild` category names also map to VS Code's
 - Quick-pick command for keyboard-driven execution.
 - Go directly to a target definition.
 - Multi-root workspace and multiple-Makefile support.
-- Automatic refresh after Makefile changes.
-- Configurable Make command, discovery globs, exclusions, sorting, and click behavior.
+- Automatic refresh after matching Makefile changes when `makefileTasks.autoRefresh` is enabled.
+- Configurable Make command, discovery globs, exclusions, sorting, click behavior, and automatic refresh.
 
 ## Commands
 
@@ -172,12 +184,19 @@ Discovered targets appear under **Tasks: Run Task**. They may also be declared i
     {
       "type": "makefileTarget",
       "target": "sast-semgrep-scan",
-      "makefile": "Makefile",
       "args": ["SAST_SEMGREP_FILES=src"]
     }
   ]
 }
 ```
+
+Only `target` is required. When `makefile` is omitted, the task provider resolves the first discovered target with that name in the task's workspace scope. Set `makefile` explicitly when the same target name appears in more than one discovered Makefile.
+
+## Refresh behavior
+
+The extension always performs initial discovery, refreshes after `makefileTasks` configuration changes, and supports manual refresh through **Makefile Tasks: Refresh Targets**.
+
+When `makefileTasks.autoRefresh` is enabled, saves to known Makefiles, workspace-folder changes, and file events matching `**/{Makefile,makefile,GNUmakefile,*.mk}` schedule a refresh. Files discovered only through custom globs outside that watcher pattern may require manual refresh after external changes.
 
 ## Development
 
