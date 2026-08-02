@@ -3,7 +3,6 @@
 A native VS Code task explorer for documented Makefile targets.
 
 - [1. Details](#1-details)
-- [Make Tasks specification](docs/make-tasks-specification/README.md)
 
 ## 1. Details
 
@@ -19,13 +18,13 @@ A native VS Code task explorer for documented Makefile targets.
 
 The extension discovers targets marked with `##` comments, presents them in a dedicated Activity Bar view, and registers each target with VS Code's Tasks system.
 
-The [Make Tasks specification](docs/make-tasks-specification/README.md) is the normative reference for annotation syntax and externally observable behavior.
-
 1. Insights and Details
 
     - VS Code [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
       > Anatomy of a VS Code extension, including the structure of the extension folder and the purpose of each file.
 
+    - [Make Tasks specification](docs/make-tasks-specification/README.md)
+      > The Make Tasks Specification is the normative reference for annotation syntax and externally observable behavior.
 2. Usage and Instructions
 
     - CI/CD
