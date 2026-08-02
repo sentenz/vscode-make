@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.2](https://github.com/sentenz/vscode-make/compare/1.4.1...1.4.2) (2026-08-02)
+
+### Bug Fixes
+
+* **deps:** update dependency @types/vscode to v1.125.0 ([#29](https://github.com/sentenz/vscode-make/issues/29)) ([eb21b29](https://github.com/sentenz/vscode-make/commit/eb21b2994844d4a450af0a853a4e4e9d7adbaa1e))
+
 ## [1.4.1](https://github.com/sentenz/vscode-make/compare/1.4.0...1.4.1) (2026-08-02)
 
 ### Bug Fixes
