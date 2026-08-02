@@ -99,13 +99,12 @@
       "automerge": false
     },
     {
-      "description": "Group npm dependency updates from package.json and package-lock.json.",
+      "description": "Group npm dependency updates from package.json.",
       "matchManagers": [
         "npm"
       ],
       "matchFileNames": [
-        "package.json",
-        "package-lock.json"
+        "package.json"
       ],
       "matchUpdateTypes": [
         "major",
@@ -114,6 +113,28 @@
       ],
       "groupName": "npm dependencies",
       "groupSlug": "npm-dependencies",
+      "semanticCommits": "enabled",
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "deps",
+      "automerge": false
+    },
+    {
+      "description": "Keep the VS Code engine floor and typings aligned.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "package.json"
+      ],
+      "matchDepNames": [
+        "vscode",
+        "@types/vscode"
+      ],
+      "groupName": "VS Code API baseline",
+      "groupSlug": "vscode-api-baseline",
+      "rangeStrategy": "bump",
+      "minimumGroupSize": 2,
+      "dependencyDashboardApproval": true,
       "semanticCommits": "enabled",
       "semanticCommitType": "fix",
       "semanticCommitScope": "deps",
