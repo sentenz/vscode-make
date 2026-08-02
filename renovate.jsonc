@@ -211,6 +211,27 @@
       "semanticCommitType": "ci",
       "semanticCommitScope": "deps",
       "automerge": false
+    },
+    {
+      "description": "Group Node.js runtime updates.",
+      "matchDatasources": [
+        "docker",
+        "node-version"
+      ],
+      "matchPackageNames": [
+        "/(?:^|/)node$/",
+        "!calico/node",
+        "!docker.io/calico/node",
+        "!ghcr.io/devcontainers/features/node",
+        "!kindest/node",
+        "!docker.io/kindest/node"
+      ],
+      "groupName": "Node.js",
+      "groupSlug": "node-js",
+      "semanticCommits": "enabled",
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "deps",
+      "automerge": false
     }
   ]
 }
