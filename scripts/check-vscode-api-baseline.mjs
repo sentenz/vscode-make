@@ -1,4 +1,6 @@
 import { readFile } from "node:fs/promises";
+import { stdout } from "node:process";
+import { URL } from "node:url";
 
 const root = new URL("../", import.meta.url);
 const [packageJson, packageLock] = await Promise.all([
@@ -33,4 +35,4 @@ if (problems.length > 0) {
   throw new Error(`VS Code API baseline mismatch:\n- ${problems.join("\n- ")}`);
 }
 
-console.log(`VS Code API baseline is aligned at ${typesVersion}.`);
+stdout.write(`VS Code API baseline is aligned at ${typesVersion}.\n`);
