@@ -4,44 +4,49 @@ The Make Tasks Specification defines the Makefile annotations and task behavior 
 
 The specification covers only the extension's recognized annotation subset. [GNU Make](https://www.gnu.org/software/make/manual/make.html) remains authoritative for Makefile syntax, dependency evaluation, recipes, and execution semantics.
 
-- [1. Scope](#1-scope)
-  - [1.1. Conformance](#11-conformance)
-  - [1.2. Feature Model](#12-feature-model)
-- [2. Annotation Syntax](#2-annotation-syntax)
-  - [2.1. Target Rules](#21-target-rules)
-  - [2.2. Descriptions](#22-descriptions)
-  - [2.3. Categories](#23-categories)
-  - [2.4. Inputs](#24-inputs)
-- [3. Discovery and Task Behavior](#3-discovery-and-task-behavior)
-  - [3.1. Discovery](#31-discovery)
-  - [3.2. Task Definition and Resolution](#32-task-definition-and-resolution)
-  - [3.3. Input Processing and Execution](#33-input-processing-and-execution)
-  - [3.4. Presentation](#34-presentation)
-  - [3.5. Refresh and Error Handling](#35-refresh-and-error-handling)
-- [4. Configuration](#4-configuration)
-  - [4.1. Discovery Configuration](#41-discovery-configuration)
-  - [4.2. Execution and Interaction Configuration](#42-execution-and-interaction-configuration)
-  - [4.3. Presentation and Refresh Configuration](#43-presentation-and-refresh-configuration)
-- [5. Examples](#5-examples)
-  - [5.1. Description](#51-description)
-  - [5.2. Category](#52-category)
-  - [5.3. Inputs](#53-inputs)
-  - [5.4. Multiple Targets](#54-multiple-targets)
-  - [5.5. Excluded Constructs](#55-excluded-constructs)
-- [6. Terminology](#6-terminology)
-- [7. References](#7-references)
+- [1. Specification](#1-specification)
+  - [1.1. Scope](#11-scope)
+    - [1.1.1. Conformance](#111-conformance)
+    - [1.1.2. Feature Model](#112-feature-model)
+  - [1.2. Annotation Syntax](#12-annotation-syntax)
+    - [1.2.1. Target Rules](#121-target-rules)
+    - [1.2.2. Descriptions](#122-descriptions)
+    - [1.2.3. Categories](#123-categories)
+    - [1.2.4. Inputs](#124-inputs)
+  - [1.3. Discovery and Task Behavior](#13-discovery-and-task-behavior)
+    - [1.3.1. Discovery](#131-discovery)
+    - [1.3.2. Task Definition and Resolution](#132-task-definition-and-resolution)
+    - [1.3.3. Input Processing and Execution](#133-input-processing-and-execution)
+    - [1.3.4. Presentation](#134-presentation)
+    - [1.3.5. Refresh and Error Handling](#135-refresh-and-error-handling)
+  - [1.4. Configuration](#14-configuration)
+    - [1.4.1. Discovery Configuration](#141-discovery-configuration)
+    - [1.4.2. Execution and Interaction Configuration](#142-execution-and-interaction-configuration)
+    - [1.4.3. Presentation and Refresh Configuration](#143-presentation-and-refresh-configuration)
+  - [1.5. Examples](#15-examples)
+    - [1.5.1. Description](#151-description)
+    - [1.5.2. Category](#152-category)
+    - [1.5.3. Inputs](#153-inputs)
+    - [1.5.4. Multiple Targets](#154-multiple-targets)
+    - [1.5.5. Excluded Constructs](#155-excluded-constructs)
+- [2. Terminology](#2-terminology)
+- [3. References](#3-references)
 
-## 1. Scope
+## 1. Specification
+
+The specification defines the supported annotation syntax, discovery and task behavior, configuration controls, and representative examples for Makefile Tasks.
+
+### 1.1. Scope
 
 Makefile Tasks exposes documented Makefile targets through an Activity Bar explorer, extension commands, and the Visual Studio Code task system. This specification defines the annotation and integration behavior required for those interfaces; it does not define general Makefile parsing.
 
-### 1.1. Conformance
+#### 1.1.1. Conformance
 
 The key words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY** are interpreted according to IETF [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174) when they appear in uppercase.
 
 A conforming implementation satisfies every applicable normative statement in this document. Changes to recognized annotation syntax or externally observable task behavior SHOULD update this specification and the corresponding regression tests in the same change.
 
-### 1.2. Feature Model
+#### 1.1.2. Feature Model
 
 The feature model separates source annotations from runtime input.
 
@@ -60,13 +65,13 @@ The feature model separates source annotations from runtime input.
 - Runtime Argument
   > An ordered value supplied through an extension command or a `makefileTarget` task definition and passed to Make after the target name.
 
-## 2. Annotation Syntax
+### 1.2. Annotation Syntax
 
 Annotations are line-oriented comments associated with concrete Make rules. Description and usage annotations are pending metadata that apply only to the next supported rule. Category metadata remains active until another valid category header replaces it.
 
 A line beginning with a tab is recipe content and MUST NOT be interpreted as an annotation or target. Otherwise, optional horizontal whitespace MAY precede usage and category annotations; description annotations permit leading spaces.
 
-### 2.1. Target Rules
+#### 1.2.1. Target Rules
 
 A discovered target name MUST match:
 
@@ -78,7 +83,7 @@ A supported rule MUST begin at the first character of a line, contain one or mor
 
 Pattern rules, assignments, recipes, unsupported target names, and undocumented rules MUST NOT produce discovered targets.
 
-### 2.2. Descriptions
+#### 1.2.2. Descriptions
 
 A supported target MUST have a non-empty preceding or inline description.
 
@@ -97,7 +102,7 @@ A supported target MUST have a non-empty preceding or inline description.
 - Multiple Targets
   > A supported rule containing multiple target names produces one discovered target per name. Each target receives the same description and active category.
 
-### 2.3. Categories
+#### 1.2.3. Categories
 
 A category header has the following abstract form:
 
@@ -109,7 +114,7 @@ The leading separator run MUST contain one Unicode punctuation or symbol charact
 
 A valid category applies to subsequent documented targets until another valid category header is encountered. Unrelated Makefile constructs do not clear the active category. A category header clears pending description and usage metadata.
 
-### 2.4. Inputs
+#### 1.2.4. Inputs
 
 Input support consists of descriptive usage metadata and ordered runtime arguments.
 
@@ -125,11 +130,11 @@ Spacer comments containing only `#` and optional horizontal whitespace MAY occur
 
 Usage metadata MUST NOT validate, type, transform, or supply runtime arguments. Runtime arguments originate from **Run Target with Arguments** or the optional `args` array in a `makefileTarget` task definition.
 
-## 3. Discovery and Task Behavior
+### 1.3. Discovery and Task Behavior
 
 Discovery converts supported annotations and rules into workspace-scoped target records. Task integration converts those records into Visual Studio Code tasks without evaluating Make variables, includes, conditionals, implicit rules, or generated targets.
 
-### 3.1. Discovery
+#### 1.3.1. Discovery
 
 Makefiles MUST be discovered independently within each workspace folder using the configured include globs and exclusion glob. Files containing no documented targets MUST be omitted.
 
@@ -137,7 +142,7 @@ Each discovered target MUST retain its name, description, workspace folder, work
 
 Within one Makefile, the first discovered definition of a target name MUST be retained and later duplicate definitions MUST be ignored. The same target name in different Makefiles remains distinct.
 
-### 3.2. Task Definition and Resolution
+#### 1.3.2. Task Definition and Resolution
 
 Discovered targets MUST be available through the `makefileTarget` task type.
 
@@ -152,7 +157,7 @@ When `makefile` is present, task resolution MUST match the target name and works
 
 When `makefile` is absent, task resolution MUST use the first discovered target with the same name in the applicable workspace scope. An explicit `makefile` value SHOULD be used when the same target name occurs in more than one discovered Makefile.
 
-### 3.3. Input Processing and Execution
+#### 1.3.3. Input Processing and Execution
 
 A resolved task MUST execute the configured Make command with this argument order:
 
@@ -164,7 +169,7 @@ The working directory MUST be the directory containing the selected Makefile. Ar
 
 Text entered through **Run Target with Arguments** is tokenized without applying shell grammar. Whitespace separates arguments except inside single or double quotes. Backslash escapes the following character outside single quotes. Quote delimiters are removed, and unterminated quoted input MUST be rejected without executing the task.
 
-### 3.4. Presentation
+#### 1.3.4. Presentation
 
 Targets MUST remain distinguishable by workspace folder and Makefile when more than one scope exists. When at least one target in a Makefile has a category, categorized targets MUST be grouped by category and targets without a category MUST appear under **Uncategorized**.
 
@@ -172,7 +177,7 @@ The categories `Build`, `Test`, `Clean`, `Rebuild`, and `Rebuild All` MUST map c
 
 A retained usage suffix MUST be shown in the target picker, explorer tooltip, generated task detail, and argument-input prompt. The description MUST remain visible in target-selection and task-detail surfaces, and the source location MUST remain available for navigation.
 
-### 3.5. Refresh and Error Handling
+#### 1.3.5. Refresh and Error Handling
 
 Initial discovery and manual refresh MUST be supported. Changes to `makefileTasks` configuration MUST trigger discovery refresh.
 
@@ -180,36 +185,36 @@ When `makefileTasks.autoRefresh` is enabled, saves to discovered Makefiles, work
 
 Discovery and input errors MUST be reported without terminating extension activation or executing invalid input.
 
-## 4. Configuration
+### 1.4. Configuration
 
 Configuration settings are grouped by the behavior they control.
 
-### 4.1. Discovery Configuration
+#### 1.4.1. Discovery Configuration
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
 | `makefileTasks.fileGlobs` | `**/Makefile`, `**/makefile`, `**/GNUmakefile` | Defines workspace-relative Makefile discovery patterns. |
 | `makefileTasks.excludeGlob` | `**/{.git,node_modules,vendor,.venv,dist,out}/**` | Excludes matching paths from discovery. |
 
-### 4.2. Execution and Interaction Configuration
+#### 1.4.2. Execution and Interaction Configuration
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
 | `makefileTasks.makeCommand` | `make` | Defines the executable or command supplied to task execution. |
 | `makefileTasks.runOnClick` | `true` | Runs a target when its explorer item is selected. |
 
-### 4.3. Presentation and Refresh Configuration
+#### 1.4.3. Presentation and Refresh Configuration
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
 | `makefileTasks.sort` | `source` | Uses source order or name order in the explorer and task picker. |
 | `makefileTasks.autoRefresh` | `true` | Enables refresh scheduling after supported workspace and file events. |
 
-## 5. Examples
+### 1.5. Examples
 
 The examples demonstrate the recognized subset and its resulting metadata. Recipe behavior remains governed by GNU Make.
 
-### 5.1. Description
+#### 1.5.1. Description
 
 Example:
 
@@ -228,7 +233,7 @@ test: ## Run the test suite
 	go test ./...
 ```
 
-### 5.2. Category
+#### 1.5.2. Category
 
 Example:
 
@@ -241,7 +246,7 @@ test:
 
 The category `Test` applies to the target and maps it to the built-in test task group.
 
-### 5.3. Inputs
+#### 1.5.3. Inputs
 
 Example:
 
@@ -276,7 +281,7 @@ An explicit task supplies ordered runtime arguments independently of the usage a
 
 The resulting Make invocation places both arguments after `secrets-decrypt`.
 
-### 5.4. Multiple Targets
+#### 1.5.4. Multiple Targets
 
 Example:
 
@@ -288,7 +293,7 @@ alpha beta:: prerequisites
 
 The rule produces `alpha` and `beta` with the description `Build both variants. Produce release artifacts.`
 
-### 5.5. Excluded Constructs
+#### 1.5.5. Excluded Constructs
 
 Example:
 
@@ -305,7 +310,7 @@ undocumented:
 
 None of these constructs produces a discovered target.
 
-## 6. Terminology
+## 2. Terminology
 
 - Active Category
   > The most recent valid category header that applies to subsequent documented targets.
@@ -331,7 +336,7 @@ None of these constructs produces a discovered target.
 - Workspace Scope
   > The Visual Studio Code workspace folder used to discover, distinguish, resolve, and execute a target.
 
-## 7. References
+## 3. References
 
 - GNU Project [GNU Make Manual](https://www.gnu.org/software/make/manual/make.html) documentation.
 - Visual Studio Code [Tasks](https://code.visualstudio.com/docs/debugtest/tasks) documentation.
