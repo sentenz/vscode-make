@@ -40,7 +40,7 @@
   "files": [
     "dist/**",
     "assets/**",
-    "docs/make-tasks-specification/**",
+    "docs/make-tasks-specification.md",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
