@@ -638,8 +638,7 @@ vscode-extension-install: vscode-extension-package
 
 # Usage: make vscode-extension-uninstall [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_ID=<publisher.name>] [VSCODE_CLI=code]
 #
-# When VSCODE_EXTENSION_ID is omitted, the identifier is derived from
-# package.json as "<publisher>.<name>".
+# NOTE VSCODE_EXTENSION_ID is omitted, when the identifier is derived from package.json as "<publisher>.<name>".
 #
 ## Uninstall the VS Code extension
 vscode-extension-uninstall:
