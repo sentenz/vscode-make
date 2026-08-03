@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.8](https://github.com/sentenz/vscode-make/compare/1.4.7...1.4.8) (2026-08-03)
+
+### Bug Fixes
+
+* rename extension from makefile-task-runner to makefile-task-manager ([eb7e059](https://github.com/sentenz/vscode-make/commit/eb7e059cd6f167b793bb2764f4d74b65a41540c8))
+
 ## [1.4.7](https://github.com/sentenz/vscode-make/compare/1.4.6...1.4.7) (2026-08-03)
 
 ### Bug Fixes
