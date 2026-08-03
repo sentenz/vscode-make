@@ -566,8 +566,8 @@ VSCODE_EXTENSION_OUT_ABS := $(abspath $(VSCODE_EXTENSION_OUT))
 VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
 
 VSCODE_CLI ?= code
-NPM        ?= npm
-VSCE       ?= $(NPM) exec -- vsce
+NPM ?= npm
+VSCE ?= $(NPM) exec -- vsce
 
 # Usage: make vscode-extension-dependencies [VSCODE_EXTENSION_DIR=<dir>]
 #
@@ -577,10 +577,12 @@ vscode-extension-dependencies:
 		echo "error: package.json not found in $(VSCODE_EXTENSION_DIR_ABS)" >&2; \
 		exit 1; \
 	}
+
 	@command -v "$(NPM)" >/dev/null 2>&1 || { \
 		echo "error: $(NPM) is not installed or not available in PATH" >&2; \
 		exit 1; \
 	}
+
 	@cd "$(VSCODE_EXTENSION_DIR_ABS)" && { \
 		if [ -f package-lock.json ]; then \
 			$(NPM) ci; \
@@ -604,11 +606,9 @@ vscode-extension-build: vscode-extension-dependencies
 ## Build and package the VS Code extension as a VSIX archive
 vscode-extension-package: vscode-extension-dependencies
 	@mkdir -p "$(dir $(VSCODE_EXTENSION_VSIX_ABS))"
+
 	@cd "$(VSCODE_EXTENSION_DIR_ABS)" && \
-		$(VSCE) package \
-			--no-dependencies \
-			--out "$(VSCODE_EXTENSION_VSIX_ABS)"
-	@echo "VSIX created: $(VSCODE_EXTENSION_VSIX_ABS)"
+		$(VSCE) package --no-dependencies --out "$(VSCODE_EXTENSION_VSIX_ABS)"
 .PHONY: vscode-extension-package
 
 # Usage: VSCE_PAT=<token> make vscode-extension-publish [VSCODE_EXTENSION_DIR=<dir>] [VSCE_PUBLISH_ARGS="patch|minor|major|<version>|..."]
@@ -616,9 +616,7 @@ vscode-extension-package: vscode-extension-dependencies
 ## Build and publish the VS Code extension to the Visual Studio Marketplace
 vscode-extension-publish: vscode-extension-dependencies
 	@cd "$(VSCODE_EXTENSION_DIR_ABS)" && \
-		$(VSCE) publish \
-			--no-dependencies \
-			$(VSCE_PUBLISH_ARGS)
+		$(VSCE) publish --no-dependencies $(VSCE_PUBLISH_ARGS)
 .PHONY: vscode-extension-publish
 
 # Usage: make vscode-extension-install [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_OUT=<out>] [VSCODE_EXTENSION_VSIX=<file>] [VSCODE_CLI=code]
@@ -629,13 +627,13 @@ vscode-extension-install: vscode-extension-package
 		echo "error: $(VSCODE_CLI) is not installed or not available in PATH" >&2; \
 		exit 1; \
 	}
+
 	@test -f "$(VSCODE_EXTENSION_VSIX_ABS)" || { \
 		echo "error: VSIX not found: $(VSCODE_EXTENSION_VSIX_ABS)" >&2; \
 		exit 1; \
 	}
-	@"$(VSCODE_CLI)" \
-		--install-extension "$(VSCODE_EXTENSION_VSIX_ABS)" \
-		--force
+
+	@"$(VSCODE_CLI)" --install-extension "$(VSCODE_EXTENSION_VSIX_ABS)" --force
 .PHONY: vscode-extension-install
 
 # Usage: make vscode-extension-uninstall [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_ID=<publisher.name>] [VSCODE_CLI=code]
@@ -649,16 +647,17 @@ vscode-extension-uninstall:
 		echo "error: $(VSCODE_CLI) is not installed or not available in PATH" >&2; \
 		exit 1; \
 	}
+
 	@test -f "$(VSCODE_EXTENSION_DIR_ABS)/package.json" || { \
 		echo "error: package.json not found in $(VSCODE_EXTENSION_DIR_ABS)" >&2; \
 		exit 1; \
 	}
+
 	@extension_id="$(strip $(VSCODE_EXTENSION_ID))"; \
 	if [ -z "$$extension_id" ]; then \
 		extension_id="$$(cd "$(VSCODE_EXTENSION_DIR_ABS)" && \
 			node -p "const p = require('./package.json'); p.publisher + '.' + p.name")"; \
 	fi; \
-	echo "Uninstalling $$extension_id"; \
 	"$(VSCODE_CLI)" --uninstall-extension "$$extension_id"
 .PHONY: vscode-extension-uninstall
 
@@ -670,6 +669,7 @@ vscode-extension-reinstall:
 		VSCODE_EXTENSION_DIR="$(VSCODE_EXTENSION_DIR)" \
 		VSCODE_EXTENSION_ID="$(VSCODE_EXTENSION_ID)" \
 		VSCODE_CLI="$(VSCODE_CLI)" || true
+
 	@$(MAKE) vscode-extension-install \
 		VSCODE_EXTENSION_DIR="$(VSCODE_EXTENSION_DIR)" \
 		VSCODE_EXTENSION_OUT="$(VSCODE_EXTENSION_OUT)" \
