@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 
 suite('Makefile Tasks extension', () => {
   test('activates and contributes documented Makefile tasks', async () => {
-    const extension = vscode.extensions.getExtension('sentenz.makefile-task-explorer');
+    const extension = vscode.extensions.getExtension('sentenz.makefile-task');
     assert.ok(extension, 'Extension should be available in the development host.');
 
     await extension.activate();
