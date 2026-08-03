@@ -9,10 +9,10 @@ A native VS Code task explorer for documented Makefile targets.
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/)
-  > Node.js (>=22) is required to build and run the extension.
+  > Node.js (>=22) is required to build, test, and package the extension.
 
 - [Visual Studio Code](https://code.visualstudio.com/download)
-  > Visual Studio Code (>=1.80) is required to run the extension.
+  > Visual Studio Code (>=1.125) is required to run the extension.
 
 ### 1.2. Usage
 
