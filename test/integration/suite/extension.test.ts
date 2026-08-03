@@ -1,9 +1,22 @@
 import * as assert from 'node:assert/strict';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
+
+type ExtensionManifest = {
+  name: string;
+  publisher: string;
+};
+
+function extensionIdFromManifest(): string {
+  const manifestPath = path.resolve(__dirname, '../../../../package.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as ExtensionManifest;
+  return `${manifest.publisher}.${manifest.name}`;
+}
 
 suite('Makefile Tasks extension', () => {
   test('activates and contributes documented Makefile tasks', async () => {
-    const extension = vscode.extensions.getExtension('sentenz.makefile-task');
+    const extension = vscode.extensions.getExtension(extensionIdFromManifest());
     assert.ok(extension, 'Extension should be available in the development host.');
 
     await extension.activate();
