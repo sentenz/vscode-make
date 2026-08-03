@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.6](https://github.com/sentenz/vscode-make/compare/1.4.5...1.4.6) (2026-08-03)
+
+### Bug Fixes
+
+* rename package and update VSIX filename to makefile-task-explorer ([68a051a](https://github.com/sentenz/vscode-make/commit/68a051a7561fd821019ec1ef3f64f470a21a486c))
+
 ## [1.4.5](https://github.com/sentenz/vscode-make/compare/1.4.4...1.4.5) (2026-08-03)
 
 ### Bug Fixes
