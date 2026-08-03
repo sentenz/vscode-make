@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.3](https://github.com/sentenz/vscode-make/compare/1.4.2...1.4.3) (2026-08-03)
+
+### Bug Fixes
+
+* update extension ID in tests and workflows for consistency ([f51d85b](https://github.com/sentenz/vscode-make/commit/f51d85b61a7f7285b32c19296d6bd1f5e9b69055))
+
 ## [1.4.2](https://github.com/sentenz/vscode-make/compare/1.4.1...1.4.2) (2026-08-02)
 
 ### Bug Fixes

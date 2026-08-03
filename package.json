@@ -2,7 +2,7 @@
   "name": "makefile-task-explorer",
   "displayName": "Makefile Tasks",
   "description": "Discover documented Makefile targets and run them from an Activity Bar task explorer.",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "publisher": "sentenz",
   "license": "MIT",
   "icon": "assets/icon.png",
