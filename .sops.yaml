@@ -6,7 +6,7 @@ creation_rules:
     key_groups:
       - pgp:
           - "F174FF15961E09604A3CBD78F650082B88276934" # sops
-          - "796213EB3F94858F4C7CA375BFBDC82D145801A6" # sops-vscode-make
+          - "D6D8331E1D80457E749EAC4B30A61F6C745B619C" # sops-vscode-make
 
   # 2. Certificates and Private Keys
   - path_regex: '.*\.(pem|key|crt|cer|p12|der)$'
@@ -14,7 +14,7 @@ creation_rules:
     key_groups:
       - pgp:
           - "F174FF15961E09604A3CBD78F650082B88276934" # sops
-          - "796213EB3F94858F4C7CA375BFBDC82D145801A6" # sops-vscode-make
+          - "D6D8331E1D80457E749EAC4B30A61F6C745B619C" # sops-vscode-make
 
   # 3. Kubernetes YAML: encrypt only secret payloads
   - path_regex: .*.yaml
@@ -22,13 +22,13 @@ creation_rules:
     key_groups:
       - pgp:
           - "0F0FA4800EFAD0BE36B109AE7F34A16A052377E8" # sops
-          - "796213EB3F94858F4C7CA375BFBDC82D145801A6" # sops-vscode-make
+          - "D6D8331E1D80457E749EAC4B30A61F6C745B619C" # sops-vscode-make
 
   # 4.1. Generic group rule
   - key_groups:
       - pgp:
           - "F174FF15961E09604A3CBD78F650082B88276934" # sops
-          - "796213EB3F94858F4C7CA375BFBDC82D145801A6" # sops-vscode-make
+          - "D6D8331E1D80457E749EAC4B30A61F6C745B619C" # sops-vscode-make
 
   # 4.2. Generic single rule
   - pgp: "F174FF15961E09604A3CBD78F650082B88276934" # sops
