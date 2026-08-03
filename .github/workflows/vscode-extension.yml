@@ -54,7 +54,8 @@ jobs:
           PUBLISHED: ${{ steps.extension.outputs.published }}
           VSIX_PATH: ${{ steps.extension.outputs.vsix-path }}
         run: |
-          test "${EXTENSION_ID}" = "sentenz.makefile-task"
+          expected_extension_id="$(node -p "const p = require('./package.json'); p.publisher + '.' + p.name")"
+          test "${EXTENSION_ID}" = "${expected_extension_id}"
           test "${EXTENSION_VERSION}" = "$(node -p 'require("./package.json").version')"
           test "${PUBLISHED}" = "false"
           test -s "${VSIX_PATH}"
