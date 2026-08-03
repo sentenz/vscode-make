@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.7](https://github.com/sentenz/vscode-make/compare/1.4.6...1.4.7) (2026-08-03)
+
+### Bug Fixes
+
+* update VSIX filename to makefile-task-runner-extension.vsix ([c2ba27e](https://github.com/sentenz/vscode-make/commit/c2ba27e8496d47e0a1b704864350d26efeb25671))
+
 ## [1.4.6](https://github.com/sentenz/vscode-make/compare/1.4.5...1.4.6) (2026-08-03)
 
 ### Bug Fixes
