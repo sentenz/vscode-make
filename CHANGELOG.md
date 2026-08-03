@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.5](https://github.com/sentenz/vscode-make/compare/1.4.4...1.4.5) (2026-08-03)
+
+### Bug Fixes
+
+* rename package from makefile-task-explorer to makefile-task ([ded91ab](https://github.com/sentenz/vscode-make/commit/ded91abd45c991c1ebac7eefbae84cf1dae8da67))
+
 ## [1.4.4](https://github.com/sentenz/vscode-make/compare/1.4.3...1.4.4) (2026-08-03)
 
 ### Bug Fixes
