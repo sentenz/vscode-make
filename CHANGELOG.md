@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/sentenz/vscode-make/compare/1.4.3...1.4.4) (2026-08-03)
+
+### Bug Fixes
+
+* derive extension ID from manifest ([249cf3a](https://github.com/sentenz/vscode-make/commit/249cf3acbb1e13d3c5107575aa2930083aa10a97))
+* verify packaged extension identity from manifest ([eb63ddb](https://github.com/sentenz/vscode-make/commit/eb63ddb7a6aaa0e2758ab9b671307bd73cc7445f))
+
 ## [1.4.3](https://github.com/sentenz/vscode-make/compare/1.4.2...1.4.3) (2026-08-03)
 
 ### Bug Fixes
