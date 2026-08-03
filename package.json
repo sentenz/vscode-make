@@ -1,5 +1,5 @@
 {
-  "name": "makefile-task",
+  "name": "makefile-task-explorer",
   "displayName": "Makefile Tasks",
   "description": "Discover documented Makefile targets and run them from an Activity Bar task explorer.",
   "version": "1.4.5",
