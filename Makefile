@@ -559,8 +559,8 @@ container-docker-teardown:
 
 VSCODE_EXTENSION_DIR ?= .
 VSCODE_EXTENSION_OUT ?= out
-VSCODE_EXTENSION_VSIX ?= $(VSCODE_EXTENSION_OUT)/vscode-make-extension.vsix
-VSCODE_EXTENSION_ID ?= sentenz.vscode-make
+VSCODE_EXTENSION_VSIX ?= $(VSCODE_EXTENSION_OUT)/makefile-task-manager-extension.vsix
+VSCODE_EXTENSION_ID ?= sentenz.makefile-task-manager
 VSCODE_EXTENSION_DIR_ABS := $(abspath $(VSCODE_EXTENSION_DIR))
 VSCODE_EXTENSION_OUT_ABS := $(abspath $(VSCODE_EXTENSION_OUT))
 VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
@@ -581,9 +581,9 @@ vscode-extension-id-check: vscode-extension-dependencies
 	@extension_id="$(strip $(VSCODE_EXTENSION_ID))"; \
 	if [ -z "$$extension_id" ]; then \
 		extension_id="$$(cd "$(VSCODE_EXTENSION_DIR_ABS)" && \
-			node -p "const p = require('./package.json'); p.publisher + '.' + p.name")"; \
+			node -e 'const p = require("./package.json"); const publisher = typeof p.publisher === "string" ? p.publisher.trim() : ""; const name = typeof p.name === "string" ? p.name.trim() : ""; if (!publisher || !name) { console.error("error: package.json must define non-empty publisher and name fields"); process.exit(1); } process.stdout.write(publisher + "." + name);')" || exit 2; \
 	fi; \
-	tmp_dir="$$(mktemp -d)"; \
+	tmp_dir="$$(mktemp -d 2>/dev/null || mktemp -d "$${TMPDIR:-/tmp}/vscode-extension-id-check.XXXXXX")"; \
 	trap 'rm -rf "$$tmp_dir"' EXIT; \
 	stdout_file="$$tmp_dir/stdout"; \
 	stderr_file="$$tmp_dir/stderr"; \
