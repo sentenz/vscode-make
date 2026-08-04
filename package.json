@@ -1,6 +1,6 @@
 {
   "name": "makefile-task-manager",
-  "displayName": "Makefile Tasks",
+  "displayName": "Makefile Target Explorer",
   "description": "Discover documented Makefile targets and run them from an Activity Bar task explorer.",
   "version": "1.4.8",
   "publisher": "sentenz",
