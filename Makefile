@@ -61,7 +61,7 @@ githooks-lefthook-initialize:
 	lefthook install --force
 .PHONY: githooks-lefthook-initialize
 
-## Deinitialize Lefthook Git hooks in the local repository
+## Deinitialize Lefthook Git hooks from the local repository
 githooks-lefthook-deinitialize:
 	lefthook uninstall
 .PHONY: githooks-lefthook-deinitialize
@@ -598,7 +598,7 @@ vscode-extension-id-check: vscode-extension-dependencies
 		echo "Warning: a permanently removed identity may still be reserved." >&2; \
 		exit 0; \
 	fi; \
-	if node -e 'const fs = require("fs"); const value = JSON.parse(fs.readFileSync(0, "utf8")); if (!value || !value.extensionName || !value.publisher || !value.publisher.publisherName) process.exit(1);' <"$$stdout_file"; then \
+	if node -e 'const fs = require("fs"); const value = JSON.parse(fs.readFileSync(0, "utf8")); if (!value || !value.extensionName || !value.publisher || !value.publisher.publisherName) process.exit(1);' <"$$stdout_file" 2>/dev/null; then \
 		echo "Unavailable: an extension record exists for $$extension_id" >&2; \
 		exit 1; \
 	fi; \
