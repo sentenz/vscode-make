@@ -61,7 +61,7 @@ githooks-lefthook-initialize:
 	lefthook install --force
 .PHONY: githooks-lefthook-initialize
 
-## Deinitialize Lefthook Git hooks from the local repository
+## Deinitialize Lefthook Git hooks in the local repository
 githooks-lefthook-deinitialize:
 	lefthook uninstall
 .PHONY: githooks-lefthook-deinitialize
@@ -559,8 +559,8 @@ container-docker-teardown:
 
 VSCODE_EXTENSION_DIR ?= .
 VSCODE_EXTENSION_OUT ?= out
-VSCODE_EXTENSION_VSIX ?= $(VSCODE_EXTENSION_OUT)/makefile-task-manager-extension.vsix
-VSCODE_EXTENSION_ID ?=
+VSCODE_EXTENSION_VSIX ?= $(VSCODE_EXTENSION_OUT)/vscode-make-extension.vsix
+VSCODE_EXTENSION_ID ?= sentenz.vscode-make
 VSCODE_EXTENSION_DIR_ABS := $(abspath $(VSCODE_EXTENSION_DIR))
 VSCODE_EXTENSION_OUT_ABS := $(abspath $(VSCODE_EXTENSION_OUT))
 VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
@@ -568,6 +568,45 @@ VSCODE_EXTENSION_VSIX_ABS := $(abspath $(VSCODE_EXTENSION_VSIX))
 VSCODE_CLI ?= code
 NPM ?= npm
 VSCE ?= $(NPM) exec -- vsce
+
+# Usage: make vscode-extension-id-check [VSCODE_EXTENSION_DIR=<dir>] [VSCODE_EXTENSION_ID=<publisher.name>]
+#
+## Check whether a VS Code Marketplace extension identity has a discoverable record
+vscode-extension-id-check: vscode-extension-dependencies
+	@test -f "$(VSCODE_EXTENSION_DIR_ABS)/package.json" || { \
+		echo "error: package.json not found in $(VSCODE_EXTENSION_DIR_ABS)" >&2; \
+		exit 2; \
+	}
+
+	@extension_id="$(strip $(VSCODE_EXTENSION_ID))"; \
+	if [ -z "$$extension_id" ]; then \
+		extension_id="$$(cd "$(VSCODE_EXTENSION_DIR_ABS)" && \
+			node -p "const p = require('./package.json'); p.publisher + '.' + p.name")"; \
+	fi; \
+	tmp_dir="$$(mktemp -d)"; \
+	trap 'rm -rf "$$tmp_dir"' EXIT; \
+	stdout_file="$$tmp_dir/stdout"; \
+	stderr_file="$$tmp_dir/stderr"; \
+	if ! (cd "$(VSCODE_EXTENSION_DIR_ABS)" && \
+		$(VSCE) show "$$extension_id" --json >"$$stdout_file" 2>"$$stderr_file"); then \
+		echo "error: unable to query the Marketplace for $$extension_id" >&2; \
+		cat "$$stderr_file" >&2; \
+		exit 2; \
+	fi; \
+	if grep -Eq '^[[:space:]]*(undefined|null)?[[:space:]]*$$' "$$stdout_file"; then \
+		echo "No discoverable Marketplace record for $$extension_id."; \
+		echo "Warning: a permanently removed identity may still be reserved." >&2; \
+		exit 0; \
+	fi; \
+	if node -e 'const fs = require("fs"); const value = JSON.parse(fs.readFileSync(0, "utf8")); if (!value || !value.extensionName || !value.publisher || !value.publisher.publisherName) process.exit(1);' <"$$stdout_file"; then \
+		echo "Unavailable: an extension record exists for $$extension_id" >&2; \
+		exit 1; \
+	fi; \
+	echo "error: unexpected Marketplace response for $$extension_id" >&2; \
+	cat "$$stdout_file" >&2; \
+	cat "$$stderr_file" >&2; \
+	exit 2
+.PHONY: vscode-extension-id-check
 
 # Usage: make vscode-extension-dependencies [VSCODE_EXTENSION_DIR=<dir>]
 #
