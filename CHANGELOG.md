@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.1](https://github.com/sentenz/vscode-make-tasks/compare/1.5.0...1.5.1) (2026-08-05)
+
+### Bug Fixes
+
+* update homepage and repository URLs in package.json ([b74d408](https://github.com/sentenz/vscode-make-tasks/commit/b74d408c96e5de2d4f5996b54197d55cb31fa1ff))
+
 ## [1.5.0](https://github.com/sentenz/vscode-make/compare/1.4.8...1.5.0) (2026-08-05)
 
 ### Features
