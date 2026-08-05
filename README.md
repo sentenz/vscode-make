@@ -1,4 +1,4 @@
-# VS Code Make
+# VS Code Make Tasks
 
 A native VS Code task explorer for documented Makefile targets.
 
