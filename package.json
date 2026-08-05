@@ -1,6 +1,6 @@
 {
-  "name": "makefile-task-manager",
-  "displayName": "Makefile Target Explorer",
+  "name": "vs-code-make-tasks",
+  "displayName": "VS Code Make Tasks",
   "description": "Discover documented Makefile targets and run them from an Activity Bar task explorer.",
   "version": "1.4.8",
   "publisher": "sentenz",
