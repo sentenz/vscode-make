@@ -23,11 +23,11 @@ The extension discovers targets marked with `##` comments, presents them in a de
     - VS Code [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
       > Anatomy of a VS Code extension, including the structure of the extension folder and the purpose of each file.
 
-    - [Make Tasks Specification](docs/make-tasks-specification.md)
-      > The Make Tasks Specification is the normative reference for annotation syntax and externally observable behavior.
-
     - VS Code [Publisher Marketplace](https://marketplace.visualstudio.com/manage/publishers/sentenz)
       > The publisher page for the extension, including version history, download statistics, and links to the source repository.
+
+    - [Make Tasks Specification](docs/make-tasks-specification.md)
+      > The Make Tasks Specification is the normative reference for annotation syntax and externally observable behavior.
 
 2. Usage and Instructions
 
