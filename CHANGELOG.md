@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.0](https://github.com/sentenz/vscode-make/compare/1.4.8...1.5.0) (2026-08-05)
+
+### Features
+
+* set VS Code extension ID and add Marketplace check ([#34](https://github.com/sentenz/vscode-make/issues/34)) ([8af39df](https://github.com/sentenz/vscode-make/commit/8af39df1c53e5052397e3cc04992f7e62adedfbb))
+
 ## [1.4.8](https://github.com/sentenz/vscode-make/compare/1.4.7...1.4.8) (2026-08-03)
 
 ### Bug Fixes
