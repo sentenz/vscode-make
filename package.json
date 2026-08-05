@@ -6,13 +6,13 @@
   "publisher": "sentenz",
   "license": "MIT",
   "icon": "assets/icon.png",
-  "homepage": "https://github.com/sentenz/vscode-make#readme",
+  "homepage": "https://github.com/sentenz/vscode-make-tasks#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sentenz/vscode-make.git"
+    "url": "https://github.com/sentenz/vscode-make-tasks.git"
   },
   "bugs": {
-    "url": "https://github.com/sentenz/vscode-make/issues"
+    "url": "https://github.com/sentenz/vscode-make-tasks/issues"
   },
   "engines": {
     "vscode": "^1.125.0",
