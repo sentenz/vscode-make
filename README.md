@@ -25,6 +25,10 @@ The extension discovers targets marked with `##` comments, presents them in a de
 
     - [Make Tasks Specification](docs/make-tasks-specification.md)
       > The Make Tasks Specification is the normative reference for annotation syntax and externally observable behavior.
+
+    - VS Code [Publisher Marketplace](https://marketplace.visualstudio.com/manage/publishers/sentenz)
+      > The publisher page for the extension, including version history, download statistics, and links to the source repository.
+
 2. Usage and Instructions
 
     - CI/CD
