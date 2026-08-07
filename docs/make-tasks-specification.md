@@ -24,7 +24,7 @@ The specification covers only the extension's recognized annotation subset. [GNU
     - [1.4.2. Execution and Interaction Configuration](#142-execution-and-interaction-configuration)
     - [1.4.3. Presentation and Refresh Configuration](#143-presentation-and-refresh-configuration)
   - [1.5. Examples](#15-examples)
-    - [1.5.1. Description](#151-description)
+    - [1.5.1. Tasks](#151-tasks)
     - [1.5.2. Category](#152-category)
     - [1.5.3. Inputs](#153-inputs)
     - [1.5.4. Multiple Targets](#154-multiple-targets)
@@ -146,12 +146,12 @@ Within one Makefile, the first discovered definition of a target name MUST be re
 
 Discovered targets MUST be available through the `makefileTarget` task type.
 
-| Property | Required | Description |
-| --- | --- | --- |
-| `type` | Yes | Literal task type `makefileTarget`. |
-| `target` | Yes | Target name to execute. |
-| `makefile` | No | Workspace-relative Makefile path used to disambiguate the target. |
-| `args` | No | Ordered positional goals or Make variable assignments appended after the target. |
+| Property   | Required | Description                                                                      |
+| ---------- | -------- | -------------------------------------------------------------------------------- |
+| `type`     | Yes      | Literal task type `makefileTarget`.                                              |
+| `target`   | Yes      | Target name to execute.                                                          |
+| `makefile` | No       | Workspace-relative Makefile path used to disambiguate the target.                |
+| `args`     | No       | Ordered positional goals or Make variable assignments appended after the target. |
 
 When `makefile` is present, task resolution MUST match the target name and workspace-relative Makefile path. When the task has a workspace-folder scope, resolution MUST also match that folder.
 
@@ -191,37 +191,37 @@ Configuration settings are grouped by the behavior they control.
 
 #### 1.4.1. Discovery Configuration
 
-| Setting | Default | Purpose |
-| --- | --- | --- |
-| `makefileTasks.fileGlobs` | `**/Makefile`, `**/makefile`, `**/GNUmakefile` | Defines workspace-relative Makefile discovery patterns. |
-| `makefileTasks.excludeGlob` | `**/{.git,node_modules,vendor,.venv,dist,out}/**` | Excludes matching paths from discovery. |
+| Setting                     | Default                                           | Purpose                                                 |
+| --------------------------- | ------------------------------------------------- | ------------------------------------------------------- |
+| `makefileTasks.fileGlobs`   | `**/Makefile`, `**/makefile`, `**/GNUmakefile`    | Defines workspace-relative Makefile discovery patterns. |
+| `makefileTasks.excludeGlob` | `**/{.git,node_modules,vendor,.venv,dist,out}/**` | Excludes matching paths from discovery.                 |
 
 #### 1.4.2. Execution and Interaction Configuration
 
-| Setting | Default | Purpose |
-| --- | --- | --- |
-| `makefileTasks.makeCommand` | `make` | Defines the executable or command supplied to task execution. |
-| `makefileTasks.runOnClick` | `true` | Runs a target when its explorer item is selected. |
+| Setting                     | Default | Purpose                                                       |
+| --------------------------- | ------- | ------------------------------------------------------------- |
+| `makefileTasks.makeCommand` | `make`  | Defines the executable or command supplied to task execution. |
+| `makefileTasks.runOnClick`  | `true`  | Runs a target when its explorer item is selected.             |
 
 #### 1.4.3. Presentation and Refresh Configuration
 
-| Setting | Default | Purpose |
-| --- | --- | --- |
-| `makefileTasks.sort` | `source` | Uses source order or name order in the explorer and task picker. |
-| `makefileTasks.autoRefresh` | `true` | Enables refresh scheduling after supported workspace and file events. |
+| Setting                     | Default  | Purpose                                                               |
+| --------------------------- | -------- | --------------------------------------------------------------------- |
+| `makefileTasks.sort`        | `source` | Uses source order or name order in the explorer and task picker.      |
+| `makefileTasks.autoRefresh` | `true`   | Enables refresh scheduling after supported workspace and file events. |
 
 ### 1.5. Examples
 
 The examples demonstrate the recognized subset and its resulting metadata. Recipe behavior remains governed by GNU Make.
 
-#### 1.5.1. Description
+#### 1.5.1. Tasks
 
 Example:
 
 ```make
 ## Build the application
 build:
-	go build ./...
+ go build ./...
 ```
 
 The rule produces the target `build` with the description `Build the application`.
@@ -230,7 +230,7 @@ The equivalent inline form is:
 
 ```make
 test: ## Run the test suite
-	go test ./...
+ go test ./...
 ```
 
 #### 1.5.2. Category
@@ -241,7 +241,7 @@ Example:
 # === Test ================================================================
 ## Run the test suite
 test:
-	go test ./...
+ go test ./...
 ```
 
 The category `Test` applies to the target and maps it to the built-in test task group.
@@ -255,7 +255,7 @@ Example:
 #
 ## Decrypt one or more files
 secrets-decrypt:
-	@echo "implementation omitted"
+ @echo "implementation omitted"
 ```
 
 The usage suffix `<files> [ENV=<name>]` is descriptive. It is displayed by the extension but does not validate supplied values.
@@ -305,7 +305,7 @@ build-%:
 VALUE := example
 
 undocumented:
-	@echo hidden
+ @echo hidden
 ```
 
 None of these constructs produces a discovered target.
