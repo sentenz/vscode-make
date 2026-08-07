@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/sentenz/vscode-make-tasks/compare/1.5.1...1.5.2) (2026-08-07)
+
+### Bug Fixes
+
+* decouple VSIX attachment from marketplace publish ([38199ff](https://github.com/sentenz/vscode-make-tasks/commit/38199ff2620ea947688ccc6832c4eb197d3f21ba))
+* preserve VSIX when marketplace token is unavailable ([6364a2e](https://github.com/sentenz/vscode-make-tasks/commit/6364a2ec6212a977b2b5a13d2c75518206826573))
+
 ## [1.5.1](https://github.com/sentenz/vscode-make-tasks/compare/1.5.0...1.5.1) (2026-08-05)
 
 ### Bug Fixes
