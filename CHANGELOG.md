@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.3](https://github.com/sentenz/vscode-make-tasks/compare/1.5.2...1.5.3) (2026-08-07)
+
+### Bug Fixes
+
+* **deps:** update dependency typescript-eslint to v8.66.0 ([#38](https://github.com/sentenz/vscode-make-tasks/issues/38)) ([b572b12](https://github.com/sentenz/vscode-make-tasks/commit/b572b12da6069422cb96b669e8033ba582241786))
+
 ## [1.5.2](https://github.com/sentenz/vscode-make-tasks/compare/1.5.1...1.5.2) (2026-08-07)
 
 ### Bug Fixes
