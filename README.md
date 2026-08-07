@@ -55,20 +55,20 @@ A native VS Code task explorer for documented Makefile targets.
       # ─── Skills Manager ────────────────────────────────────────────────────
 
       skills-agent-add: ## Provision Agent Skills
-      skills add ./skills
+        skills add ./skills
 
       skills-agent-update: ## Update Agent Skills
-      skills update ./skills
+        skills update ./skills
 
       # --- Dependencies ------------------------------------------------------
 
       dependency-update: ## Update project dependencies
-      renovate --platform=local
+        renovate --platform=local
 
       # === Test ==============================================================
 
       test: ## Run the test suite
-      go test ./...
+        go test ./...
       ```
 
 ## 2. Features
